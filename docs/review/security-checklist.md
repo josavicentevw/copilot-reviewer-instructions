@@ -19,14 +19,31 @@ This checklist provides comprehensive security validation rules for code reviews
 - [ ] No secrets in logs or error messages
 
 **Examples of violations:**
-```javascript
+
+**React/TypeScript:**
+```typescript
 // ❌ BAD
-const dbPassword = "hardcoded-password-123";
-const apiKey = "sk-1234567890abcdef";
+const API_KEY = "sk-1234567890abcdef";
+const dbConfig = {
+  password: "hardcoded-password"
+};
 
 // ✅ GOOD
-const dbPassword = process.env.DB_PASSWORD;
-const apiKey = await secretsManager.getSecret('API_KEY');
+const API_KEY = process.env.REACT_APP_API_KEY;
+const dbConfig = {
+  password: process.env.DB_PASSWORD
+};
+```
+
+**Kotlin:**
+```kotlin
+// ❌ BAD
+val apiKey = "sk-1234567890abcdef"
+val dbPassword = "hardcoded-password-123"
+
+// ✅ GOOD
+val apiKey = System.getenv("API_KEY")
+val dbPassword = secretsManager.getSecret("DB_PASSWORD")
 ```
 
 ---
@@ -45,15 +62,27 @@ const apiKey = await secretsManager.getSecret('API_KEY');
 - [ ] ORM/query builders used correctly (not bypassing parameterization)
 - [ ] Input validation for column names and table names (when dynamic)
 
-**Examples:**
-```java
+**Kotlin Example:**
+```kotlin
 // ❌ BAD - SQL Injection vulnerable
-String query = "SELECT * FROM users WHERE id = " + userId;
+val query = "SELECT * FROM users WHERE id = $userId"
 
 // ✅ GOOD - Parameterized query
-String query = "SELECT * FROM users WHERE id = ?";
-PreparedStatement stmt = conn.prepareStatement(query);
-stmt.setInt(1, userId);
+val query = "SELECT * FROM users WHERE id = ?"
+val stmt = connection.prepareStatement(query)
+stmt.setInt(1, userId)
+```
+
+**React/TypeScript Example:**
+```typescript
+// ❌ BAD - SQL Injection in API call
+const response = await fetch(`/api/users?query=SELECT * FROM users WHERE name='${userName}'`);
+
+// ✅ GOOD - Use proper API with validation
+const response = await fetch('/api/users', {
+  method: 'POST',
+  body: JSON.stringify({ userName })
+});
 ```
 
 ### NoSQL Injection Prevention
@@ -67,7 +96,7 @@ stmt.setInt(1, userId);
 - [ ] Implement URL scheme restrictions (allow only https://)
 - [ ] Validate and restrict IP ranges (block private IPs: 127.0.0.1, 10.x.x.x, etc.)
 
-**Example:**
+**React/TypeScript Example:**
 ```typescript
 // ❌ BAD - SSRF vulnerable
 const url = req.body.webhookUrl;
@@ -77,6 +106,18 @@ await axios.get(url);
 const url = req.body.webhookUrl;
 if (!isAllowedDomain(url)) throw new Error('Invalid domain');
 await axios.get(url);
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - SSRF vulnerable
+val url = request.getParameter("imageUrl")
+val image = URL(url).readBytes()
+
+// ✅ GOOD - Validated URL
+val url = request.getParameter("imageUrl")
+require(isAllowedDomain(url)) { "Invalid domain" }
+val image = URL(url).readBytes()
 ```
 
 ---
@@ -101,8 +142,8 @@ await axios.get(url);
 - [ ] Session fixation prevention
 - [ ] Logout properly invalidates sessions
 
-**Example:**
-```javascript
+**React/TypeScript Example:**
+```typescript
 // ❌ BAD - No authorization check
 app.get('/api/users/:id', async (req, res) => {
   const user = await db.getUser(req.params.id);
@@ -117,6 +158,22 @@ app.get('/api/users/:id', authenticate, async (req, res) => {
   const user = await db.getUser(req.params.id);
   res.json(user);
 });
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - No authorization check
+@GetMapping("/api/users/{id}")
+fun getUser(@PathVariable id: String): User {
+    return userRepository.findById(id)
+}
+
+// ✅ GOOD - Proper authorization
+@GetMapping("/api/users/{id}")
+fun getUser(@PathVariable id: String, @AuthenticationPrincipal user: User): User {
+    require(user.id == id || user.isAdmin) { "Forbidden" }
+    return userRepository.findById(id)
+}
 ```
 
 ---
@@ -156,13 +213,33 @@ app.get('/api/users/:id', authenticate, async (req, res) => {
 - [ ] Encryption keys properly managed (not hardcoded)
 - [ ] Database encryption enabled for sensitive data
 
-**Example:**
-```python
-# ❌ BAD - Insecure connection
-response = requests.get('http://api.example.com/data', verify=False)
+**React/TypeScript Example:**
+```typescript
+// ❌ BAD - Insecure connection
+const response = await fetch('http://api.example.com/data', { 
+  // @ts-ignore
+  rejectUnauthorized: false 
+});
 
-# ✅ GOOD - Secure connection
-response = requests.get('https://api.example.com/data', verify=True)
+// ✅ GOOD - Secure connection
+const response = await fetch('https://api.example.com/data');
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - Insecure connection
+val client = OkHttpClient.Builder()
+    .hostnameVerifier { _, _ -> true }
+    .build()
+
+// ✅ GOOD - Secure connection
+val client = OkHttpClient.Builder()
+    .build()
+val response = client.newCall(
+    Request.Builder()
+        .url("https://api.example.com/data")
+        .build()
+).execute()
 ```
 
 ---
@@ -180,13 +257,22 @@ response = requests.get('https://api.example.com/data', verify=True)
 - [ ] PII retention policies implemented
 - [ ] Data anonymization for analytics/testing
 
-**Example:**
+**React/TypeScript Example:**
 ```typescript
 // ❌ BAD - PII in logs
 logger.info(`User login: ${user.email}, SSN: ${user.ssn}`);
 
 // ✅ GOOD - Masked PII
 logger.info(`User login: ${maskEmail(user.email)}`);
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - PII in logs
+logger.info("User login: ${user.email}, SSN: ${user.ssn}")
+
+// ✅ GOOD - Masked PII
+logger.info("User login: ${maskEmail(user.email)}")
 ```
 
 ---

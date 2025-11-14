@@ -20,7 +20,7 @@ This checklist ensures that code changes include appropriate tests and maintain 
 
 **Example:**
 ```typescript
-// ✅ GOOD - Clear, focused unit test
+// ✅ GOOD - Clear, focused unit test (React/TypeScript)
 describe('calculateDiscount', () => {
   it('should apply 10% discount for premium tier with volume > 100', () => {
     // Arrange
@@ -39,6 +39,30 @@ describe('calculateDiscount', () => {
     expect(discount).toBe(0);
   });
 });
+```
+
+```kotlin
+// ✅ GOOD - Clear, focused unit test (Kotlin)
+class DiscountCalculatorTest {
+    @Test
+    fun `should apply 10% discount for premium tier with volume greater than 100`() {
+        // Arrange
+        val tier = "premium"
+        val volume = 150
+        
+        // Act
+        val discount = calculateDiscount(tier, volume)
+        
+        // Assert
+        assertEquals(0.10, discount, 0.001)
+    }
+    
+    @Test
+    fun `should return 0 discount for free tier`() {
+        val discount = calculateDiscount("free", 100)
+        assertEquals(0.0, discount, 0.001)
+    }
+}
 ```
 
 ### Assertions
@@ -62,21 +86,21 @@ describe('calculateDiscount', () => {
 - [ ] Database interactions tested with appropriate test database
 - [ ] Message queue/event interactions validated
 
-**Example:**
-```java
+**Kotlin Example:**
+```kotlin
 // ✅ GOOD - API contract test
 @Test
-public void shouldReturnValidUserSchema() {
-    Response response = given()
-        .when()
+fun `should return valid user schema`() {
+    val response = given()
+        .`when`()
         .get("/api/users/123")
         .then()
         .statusCode(200)
-        .extract().response();
+        .extract().response()
     
     // Verify response matches schema
     response.then().assertThat()
-        .body(matchesJsonSchemaInClasspath("user-schema.json"));
+        .body(matchesJsonSchemaInClasspath("user-schema.json"))
 }
 ```
 
@@ -96,17 +120,36 @@ public void shouldReturnValidUserSchema() {
 - [ ] Sensitive data properly mocked
 - [ ] Test data generation uses factories or builders
 
-**Example:**
-```python
-# ❌ BAD - Real PII in tests
-def test_user_creation():
-    user = create_user("john.doe@acme.com", "123-45-6789")
-    assert user.email == "john.doe@acme.com"
+**React/TypeScript Example:**
+```typescript
+// ❌ BAD - Real PII in tests
+function testUserCreation() {
+  const user = createUser("john.doe@acme.com", "123-45-6789");
+  expect(user.email).toBe("john.doe@acme.com");
+}
 
-# ✅ GOOD - Synthetic test data
-def test_user_creation():
-    user = create_user("test+user@example.com", "000-00-0000")
-    assert user.email == "test+user@example.com"
+// ✅ GOOD - Synthetic test data
+function testUserCreation() {
+  const user = createUser("test+user@example.com", "000-00-0000");
+  expect(user.email).toBe("test+user@example.com");
+}
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - Real PII in tests
+@Test
+fun `test user creation with real data`() {
+    val user = createUser("john.doe@acme.com", "123-45-6789")
+    assertEquals("john.doe@acme.com", user.email)
+}
+
+// ✅ GOOD - Synthetic test data
+@Test
+fun `test user creation with synthetic data`() {
+    val user = createUser("test+user@example.com", "000-00-0000")
+    assertEquals("test+user@example.com", user.email)
+}
 ```
 
 ---
@@ -184,8 +227,8 @@ src/
 - [ ] Use real objects for simple dependencies
 - [ ] Verify mock interactions when testing side effects
 
-**Example:**
-```javascript
+**React/TypeScript Example:**
+```typescript
 // ✅ GOOD - Mock external service
 describe('UserService', () => {
   it('should send welcome email when user is created', async () => {
@@ -202,6 +245,31 @@ describe('UserService', () => {
     });
   });
 });
+```
+
+**Kotlin Example:**
+```kotlin
+// ✅ GOOD - Mock external service
+class UserServiceTest {
+    @Test
+    fun `should send welcome email when user is created`() {
+        // Arrange
+        val emailService = mockk<EmailService>()
+        every { emailService.send(any()) } returns EmailResult(success = true)
+        
+        val userService = UserService(emailService)
+        
+        // Act
+        userService.createUser(email = "test@example.com")
+        
+        // Assert
+        verify {
+            emailService.send(
+                match { it.to == "test@example.com" && it.template == "welcome" }
+            )
+        }
+    }
+}
 ```
 
 ---

@@ -45,35 +45,66 @@ try {
 - [ ] Idempotent operations marked for safe retries
 - [ ] Non-retriable errors identified and handled separately
 
-**Example:**
-```python
-import time
-import random
-from typing import Callable, Any
+**React/TypeScript Example:**
+```typescript
+async function retryWithBackoff<T>(
+  func: () => Promise<T>,
+  maxAttempts: number = 3,
+  baseDelay: number = 1000,
+  maxDelay: number = 60000
+): Promise<T> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await func();
+    } catch (error) {
+      if (attempt === maxAttempts - 1 || !isTransientError(error)) {
+        throw error;
+      }
+      
+      // Exponential backoff with jitter
+      const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
+      const jitter = Math.random() * delay * 0.1;
+      await new Promise(resolve => setTimeout(resolve, delay + jitter));
+      
+      console.warn(`Retry attempt ${attempt + 1}/${maxAttempts} after ${delay}ms`);
+    }
+  }
+  throw new Error('Max attempts reached');
+}
 
-def retry_with_backoff(
-    func: Callable,
-    max_attempts: int = 3,
-    base_delay: float = 1.0,
-    max_delay: float = 60.0
-) -> Any:
-    """Retry function with exponential backoff and jitter"""
-    for attempt in range(max_attempts):
-        try:
-            return func()
-        except TransientError as e:
-            if attempt == max_attempts - 1:
-                raise
+// Usage
+const result = await retryWithBackoff(() => api.fetchData());
+```
+
+**Kotlin Example:**
+```kotlin
+suspend fun <T> retryWithBackoff(
+    maxAttempts: Int = 3,
+    baseDelay: Long = 1000,
+    maxDelay: Long = 60000,
+    block: suspend () -> T
+): T {
+    repeat(maxAttempts) { attempt ->
+        try {
+            return block()
+        } catch (e: Exception) {
+            if (attempt == maxAttempts - 1 || !isTransientError(e)) {
+                throw e
+            }
             
-            # Exponential backoff with jitter
-            delay = min(base_delay * (2 ** attempt), max_delay)
-            jitter = random.uniform(0, delay * 0.1)
-            time.sleep(delay + jitter)
+            // Exponential backoff with jitter
+            val delay = minOf(baseDelay * (1 shl attempt), maxDelay)
+            val jitter = (delay * 0.1 * Math.random()).toLong()
+            delay(delay + jitter)
             
-            logger.warning(f"Retry attempt {attempt + 1}/{max_attempts} after {delay}s")
-    
-# Usage
-result = retry_with_backoff(lambda: api_client.fetch_data())
+            logger.warn("Retry attempt ${attempt + 1}/$maxAttempts after ${delay}ms")
+        }
+    }
+    error("Max attempts reached")
+}
+
+// Usage
+val result = retryWithBackoff { api.fetchData() }
 ```
 
 ---
@@ -91,18 +122,18 @@ result = retry_with_backoff(lambda: api_client.fetch_data())
 - **Open**: Failures exceeded threshold, requests fail fast
 - **Half-Open**: Testing if service recovered, limited requests allowed
 
-**Example:**
-```java
+**Kotlin Example (using Resilience4j):**
+```kotlin
 // ✅ GOOD - Circuit breaker with Resilience4j
 @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentFallback")
-public PaymentResponse processPayment(PaymentRequest request) {
-    return paymentServiceClient.process(request);
+fun processPayment(request: PaymentRequest): PaymentResponse {
+    return paymentServiceClient.process(request)
 }
 
-public PaymentResponse paymentFallback(PaymentRequest request, Exception ex) {
-    logger.error("Payment service unavailable, using fallback", ex);
+fun paymentFallback(request: PaymentRequest, ex: Exception): PaymentResponse {
+    logger.error("Payment service unavailable, using fallback", ex)
     // Return cached response or queue for later processing
-    return queuePaymentForLater(request);
+    return queuePaymentForLater(request)
 }
 ```
 
@@ -169,10 +200,10 @@ router.post('/api/payments', async (req, res) => {
 - [ ] Errors categorized (transient vs permanent, retriable vs non-retriable)
 - [ ] Stack traces captured for debugging
 
-**Example:**
-```javascript
+**React/TypeScript Example:**
+```typescript
 // ❌ BAD - Poor error handling
-async function getUserData(userId) {
+async function getUserData(userId: string) {
   try {
     return await api.getUser(userId);
   } catch (e) {
@@ -182,29 +213,67 @@ async function getUserData(userId) {
 }
 
 // ✅ GOOD - Comprehensive error handling
-async function getUserData(userId) {
+async function getUserData(userId: string): Promise<User> {
   try {
     return await api.getUser(userId);
   } catch (error) {
     // Log with context
     logger.error('Failed to fetch user data', {
       userId,
-      error: error.message,
-      stack: error.stack,
-      endpoint: error.config?.url
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      endpoint: (error as any).config?.url
     });
     
     // Categorize error
-    if (error.response?.status === 404) {
+    if ((error as any).response?.status === 404) {
       throw new UserNotFoundError(userId);
-    } else if (error.response?.status === 429) {
+    } else if ((error as any).response?.status === 429) {
       throw new RateLimitError('API rate limit exceeded');
-    } else if (error.code === 'ECONNABORTED') {
+    } else if ((error as any).code === 'ECONNABORTED') {
       throw new TimeoutError('Request timeout');
     }
     
     throw new ExternalServiceError('Failed to fetch user data', error);
   }
+}
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - Poor error handling
+suspend fun getUserData(userId: String): User? {
+    return try {
+        api.getUser(userId)
+    } catch (e: Exception) {
+        println("Error")
+        null
+    }
+}
+
+// ✅ GOOD - Comprehensive error handling
+suspend fun getUserData(userId: String): User {
+    return try {
+        api.getUser(userId)
+    } catch (error: Exception) {
+        // Log with context
+        logger.error("Failed to fetch user data") {
+            put("userId", userId)
+            put("error", error.message)
+            put("stackTrace", error.stackTraceToString())
+        }
+        
+        // Categorize error
+        when (error) {
+            is HttpException -> when (error.code()) {
+                404 -> throw UserNotFoundException(userId)
+                429 -> throw RateLimitException("API rate limit exceeded")
+                else -> throw ExternalServiceException("Failed to fetch user data", error)
+            }
+            is SocketTimeoutException -> throw TimeoutException("Request timeout")
+            else -> throw ExternalServiceException("Failed to fetch user data", error)
+        }
+    }
 }
 ```
 
@@ -224,34 +293,71 @@ async function getUserData(userId) {
 - [ ] Feature flags for toggling functionality
 - [ ] Partial responses acceptable when some data unavailable
 
-**Example:**
-```python
-# ✅ GOOD - Graceful degradation
-async def get_product_details(product_id: str):
-    # Core data (required)
-    product = await db.get_product(product_id)
+**React/TypeScript Example:**
+```typescript
+// ✅ GOOD - Graceful degradation
+async function getProductDetails(productId: string) {
+  // Core data (required)
+  const product = await db.getProduct(productId);
+  
+  // Enrichment data (optional)
+  let recommendations: Product[] = [];
+  let reviewsSummary: ReviewsSummary | null = null;
+  
+  try {
+    // Non-critical: product recommendations
+    recommendations = await recommendationsService.get(productId, { timeout: 2000 });
+  } catch (error) {
+    logger.warn(`Recommendations unavailable: ${error}`);
+  }
+  
+  try {
+    // Non-critical: reviews summary
+    reviewsSummary = await reviewsService.getSummary(productId, { timeout: 2000 });
+  } catch (error) {
+    logger.warn(`Reviews unavailable: ${error}`);
+  }
+  
+  return {
+    product,
+    recommendations,
+    reviews: reviewsSummary
+  };
+}
+```
+
+**Kotlin Example:**
+```kotlin
+// ✅ GOOD - Graceful degradation
+suspend fun getProductDetails(productId: String): ProductDetails {
+    // Core data (required)
+    val product = db.getProduct(productId)
     
-    # Enrichment data (optional)
-    recommendations = []
-    reviews_summary = None
-    
-    try:
-        # Non-critical: product recommendations
-        recommendations = await recommendations_service.get(product_id, timeout=2)
-    except Exception as e:
-        logger.warning(f"Recommendations unavailable: {e}")
-    
-    try:
-        # Non-critical: reviews summary
-        reviews_summary = await reviews_service.get_summary(product_id, timeout=2)
-    except Exception as e:
-        logger.warning(f"Reviews unavailable: {e}")
-    
-    return {
-        "product": product,
-        "recommendations": recommendations,
-        "reviews": reviews_summary
+    // Enrichment data (optional)
+    val recommendations = try {
+        withTimeout(2000) {
+            recommendationsService.get(productId)
+        }
+    } catch (e: Exception) {
+        logger.warn("Recommendations unavailable: ${e.message}")
+        emptyList()
     }
+    
+    val reviewsSummary = try {
+        withTimeout(2000) {
+            reviewsService.getSummary(productId)
+        }
+    } catch (e: Exception) {
+        logger.warn("Reviews unavailable: ${e.message}")
+        null
+    }
+    
+    return ProductDetails(
+        product = product,
+        recommendations = recommendations,
+        reviews = reviewsSummary
+    )
+}
 ```
 
 ---
@@ -264,10 +370,10 @@ async def get_product_details(product_id: str):
 - [ ] Rate limit headers included in responses
 - [ ] Graceful handling when limits exceeded
 
-**Example:**
-```javascript
+**React/TypeScript Example (Express):**
+```typescript
 // ✅ GOOD - Rate limiting with express-rate-limit
-const rateLimit = require('express-rate-limit');
+import rateLimit from 'express-rate-limit';
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -284,6 +390,30 @@ const apiLimiter = rateLimit({
 });
 
 router.post('/api/login', apiLimiter, loginHandler);
+```
+
+**Kotlin Example (Spring Boot):**
+```kotlin
+// ✅ GOOD - Rate limiting with Bucket4j
+@RestController
+class LoginController(private val rateLimiter: RateLimiterService) {
+    
+    @PostMapping("/api/login")
+    fun login(@RequestBody request: LoginRequest, httpRequest: HttpServletRequest): ResponseEntity<*> {
+        val clientIp = httpRequest.remoteAddr
+        
+        val bucket = rateLimiter.resolveBucket(clientIp)
+        if (!bucket.tryConsume(1)) {
+            return ResponseEntity.status(429).body(mapOf(
+                "error" to "Rate limit exceeded",
+                "retryAfter" to bucket.availableTokens
+            ))
+        }
+        
+        // Process login
+        return ResponseEntity.ok(loginService.authenticate(request))
+    }
+}
 ```
 
 ### Resource Protection

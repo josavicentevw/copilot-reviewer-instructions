@@ -38,14 +38,24 @@ const users = await User.findAll({
 - Consider composite indexes for multi-column queries
 - Avoid over-indexing (impacts write performance)
 
-**Example SQL:**
-```sql
--- Query that needs an index
-SELECT * FROM orders WHERE status = 'pending' ORDER BY created_at DESC;
+**Kotlin Example:**
+```kotlin
+// Query that needs an index
+// SELECT * FROM orders WHERE status = 'pending' ORDER BY created_at DESC;
 
--- Create appropriate index
-CREATE INDEX idx_orders_status_created 
-ON orders(status, created_at DESC);
+// Create appropriate index in migration
+@Entity
+@Table(
+    name = "orders",
+    indexes = [
+        Index(name = "idx_orders_status_created", columnList = "status,created_at DESC")
+    ]
+)
+data class Order(
+    @Id val id: Long,
+    @Column(name = "status") val status: String,
+    @Column(name = "created_at") val createdAt: Instant
+)
 ```
 
 ### Query Optimization
@@ -64,8 +74,8 @@ ON orders(status, created_at DESC);
 - [ ] Maximum page size enforced (e.g., max 100 items)
 - [ ] Total count calculated efficiently (or avoided when possible)
 
-**Example:**
-```javascript
+**React/TypeScript Example:**
+```typescript
 // ✅ GOOD - Cursor-based pagination
 router.get('/api/posts', async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 20, 100);
@@ -86,6 +96,35 @@ router.get('/api/posts', async (req, res) => {
     hasMore
   });
 });
+```
+
+**Kotlin Example:**
+```kotlin
+// ✅ GOOD - Cursor-based pagination
+@GetMapping("/api/posts")
+fun getPosts(
+    @RequestParam(defaultValue = "20") limit: Int,
+    @RequestParam(required = false) cursor: Long?
+): ResponseEntity<PagedResponse<Post>> {
+    val pageSize = minOf(limit, 100)
+    
+    val posts = if (cursor != null) {
+        postRepository.findByIdGreaterThanOrderByIdAsc(cursor, PageRequest.of(0, pageSize + 1))
+    } else {
+        postRepository.findAllByOrderByIdAsc(PageRequest.of(0, pageSize + 1))
+    }
+    
+    val hasMore = posts.size > pageSize
+    val results = if (hasMore) posts.dropLast(1) else posts
+    
+    return ResponseEntity.ok(
+        PagedResponse(
+            data = results,
+            cursor = if (hasMore) results.last().id else null,
+            hasMore = hasMore
+        )
+    )
+}
 ```
 
 ### Streaming
@@ -109,31 +148,53 @@ router.get('/api/posts', async (req, res) => {
 - [ ] CDN caching for static assets
 - [ ] Database query result caching where appropriate
 
-**Example:**
-```python
-# ✅ GOOD - Caching with TTL and invalidation
-from functools import lru_cache
-import time
+**React/TypeScript Example:**
+```typescript
+// ✅ GOOD - Caching with TTL and invalidation
+class ProductService {
+  constructor(private cache: CacheService) {}
+  
+  async getProduct(productId: string): Promise<Product> {
+    const cacheKey = `product:${productId}`;
+    const cached = await this.cache.get<Product>(cacheKey);
+    
+    if (cached) {
+      return cached;
+    }
+    
+    const product = await db.queryProduct(productId);
+    await this.cache.set(cacheKey, product, { ttl: 300 }); // 5 minutes
+    return product;
+  }
+  
+  async updateProduct(productId: string, data: UpdateProductDto): Promise<void> {
+    await db.updateProduct(productId, data);
+    // Explicit cache invalidation
+    await this.cache.delete(`product:${productId}`);
+  }
+}
+```
 
-class ProductService:
-    def __init__(self, cache):
-        self.cache = cache
+**Kotlin Example:**
+```kotlin
+// ✅ GOOD - Caching with TTL and invalidation
+class ProductService(private val cache: CacheService) {
     
-    def get_product(self, product_id):
-        cache_key = f"product:{product_id}"
-        cached = self.cache.get(cache_key)
+    suspend fun getProduct(productId: String): Product {
+        val cacheKey = "product:$productId"
+        cache.get<Product>(cacheKey)?.let { return it }
         
-        if cached:
-            return cached
-        
-        product = db.query_product(product_id)
-        self.cache.set(cache_key, product, ttl=300)  # 5 minutes
+        val product = db.queryProduct(productId)
+        cache.set(cacheKey, product, ttl = 300) // 5 minutes
         return product
+    }
     
-    def update_product(self, product_id, data):
-        db.update_product(product_id, data)
-        # Explicit cache invalidation
-        self.cache.delete(f"product:{product_id}")
+    suspend fun updateProduct(productId: String, data: UpdateProductDto) {
+        db.updateProduct(productId, data)
+        // Explicit cache invalidation
+        cache.delete("product:$productId")
+    }
+}
 ```
 
 ### Cache Size Limits
@@ -151,11 +212,11 @@ class ProductService:
 - [ ] Sorting algorithms efficient for use case
 - [ ] Recursive algorithms have proper base cases and bounds
 
-**Example:**
-```javascript
+**React/TypeScript Example:**
+```typescript
 // ❌ BAD - O(n²) complexity
-function findDuplicates(arr) {
-  const duplicates = [];
+function findDuplicates(arr: number[]): number[] {
+  const duplicates: number[] = [];
   for (let i = 0; i < arr.length; i++) {
     for (let j = i + 1; j < arr.length; j++) {
       if (arr[i] === arr[j]) duplicates.push(arr[i]);
@@ -165,9 +226,9 @@ function findDuplicates(arr) {
 }
 
 // ✅ GOOD - O(n) complexity with hash set
-function findDuplicates(arr) {
-  const seen = new Set();
-  const duplicates = new Set();
+function findDuplicates(arr: number[]): number[] {
+  const seen = new Set<number>();
+  const duplicates = new Set<number>();
   
   for (const item of arr) {
     if (seen.has(item)) {
@@ -177,6 +238,35 @@ function findDuplicates(arr) {
   }
   
   return Array.from(duplicates);
+}
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - O(n²) complexity
+fun findDuplicates(arr: List<Int>): List<Int> {
+    val duplicates = mutableListOf<Int>()
+    for (i in arr.indices) {
+        for (j in i + 1 until arr.size) {
+            if (arr[i] == arr[j]) duplicates.add(arr[i])
+        }
+    }
+    return duplicates
+}
+
+// ✅ GOOD - O(n) complexity with hash set
+fun findDuplicates(arr: List<Int>): List<Int> {
+    val seen = mutableSetOf<Int>()
+    val duplicates = mutableSetOf<Int>()
+    
+    for (item in arr) {
+        if (item in seen) {
+            duplicates.add(item)
+        }
+        seen.add(item)
+    }
+    
+    return duplicates.toList()
 }
 ```
 
@@ -202,7 +292,7 @@ function findDuplicates(arr) {
 - [ ] Temporary files cleaned up
 - [ ] File operations async where possible
 
-**Example:**
+**React/TypeScript Example:**
 ```typescript
 // ❌ BAD - Sequential API calls
 async function getUserData(userIds: string[]) {
@@ -224,6 +314,33 @@ async function getUserData(userIds: string[]) {
 // ✅ BETTER - Batch API endpoint
 async function getUserData(userIds: string[]) {
   return await api.getUsers({ ids: userIds });
+}
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - Sequential API calls
+suspend fun getUserData(userIds: List<String>): List<User> {
+    val users = mutableListOf<User>()
+    for (id in userIds) {
+        val user = api.getUser(id)
+        users.add(user)
+    }
+    return users
+}
+
+// ✅ GOOD - Parallel API calls with coroutines
+suspend fun getUserData(userIds: List<String>): List<User> {
+    return coroutineScope {
+        userIds.map { id ->
+            async { api.getUser(id) }
+        }.awaitAll()
+    }
+}
+
+// ✅ BETTER - Batch API endpoint
+suspend fun getUserData(userIds: List<String>): List<User> {
+    return api.getUsers(userIds)
 }
 ```
 

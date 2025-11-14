@@ -53,37 +53,84 @@ const price = calculatePriceMultiplier(tier, volume);
 - 11-20: Complex, consider refactoring
 - 20+: Very complex, should be refactored
 
-**Example:**
-```python
-# ❌ BAD - High complexity (too many branches)
-def process_order(order):
-    if order.status == 'pending':
-        if order.payment_method == 'credit_card':
-            if order.amount > 1000:
-                if order.user.is_verified:
-                    # ... complex logic
-                else:
-                    # ... more logic
-            else:
-                # ... more logic
-        elif order.payment_method == 'paypal':
-            # ... even more logic
-    elif order.status == 'processing':
-        # ... continues...
+**React/TypeScript Example:**
+```typescript
+// ❌ BAD - High complexity (too many branches)
+function processOrder(order: Order): ProcessResult {
+  if (order.status === 'pending') {
+    if (order.paymentMethod === 'credit_card') {
+      if (order.amount > 1000) {
+        if (order.user.isVerified) {
+          // ... complex logic
+        } else {
+          // ... more logic
+        }
+      } else {
+        // ... more logic
+      }
+    } else if (order.paymentMethod === 'paypal') {
+      // ... even more logic
+    }
+  } else if (order.status === 'processing') {
+    // ... continues...
+  }
+}
 
-# ✅ GOOD - Reduced complexity with early returns and extracted functions
-def process_order(order):
-    if order.status != 'pending':
-        return handle_non_pending_order(order)
+// ✅ GOOD - Reduced complexity with early returns and extracted functions
+function processOrder(order: Order): ProcessResult {
+  if (order.status !== 'pending') {
+    return handleNonPendingOrder(order);
+  }
+  
+  validateOrder(order);
+  
+  if (order.paymentMethod === 'credit_card') {
+    return processCreditCardPayment(order);
+  } else if (order.paymentMethod === 'paypal') {
+    return processPaypalPayment(order);
+  }
+  
+  throw new UnsupportedPaymentMethodError(order.paymentMethod);
+}
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - High complexity (too many branches)
+fun processOrder(order: Order): ProcessResult {
+    if (order.status == OrderStatus.PENDING) {
+        if (order.paymentMethod == PaymentMethod.CREDIT_CARD) {
+            if (order.amount > 1000) {
+                if (order.user.isVerified) {
+                    // ... complex logic
+                } else {
+                    // ... more logic
+                }
+            } else {
+                // ... more logic
+            }
+        } else if (order.paymentMethod == PaymentMethod.PAYPAL) {
+            // ... even more logic
+        }
+    } else if (order.status == OrderStatus.PROCESSING) {
+        // ... continues...
+    }
+}
+
+// ✅ GOOD - Reduced complexity with early returns and extracted functions
+fun processOrder(order: Order): ProcessResult {
+    if (order.status != OrderStatus.PENDING) {
+        return handleNonPendingOrder(order)
+    }
     
-    validate_order(order)
+    validateOrder(order)
     
-    if order.payment_method == 'credit_card':
-        return process_credit_card_payment(order)
-    elif order.payment_method == 'paypal':
-        return process_paypal_payment(order)
-    
-    raise UnsupportedPaymentMethodError(order.payment_method)
+    return when (order.paymentMethod) {
+        PaymentMethod.CREDIT_CARD -> processCreditCardPayment(order)
+        PaymentMethod.PAYPAL -> processPaypalPayment(order)
+        else -> throw UnsupportedPaymentMethodException(order.paymentMethod)
+    }
+}
 ```
 
 ---
@@ -102,19 +149,34 @@ def process_order(order):
 - **Booleans**: Questions (`isValid`, `hasPermission`, `canEdit`)
 - **Constants**: UPPER_SNAKE_CASE (`MAX_RETRIES`, `API_TIMEOUT`)
 
-**Example:**
-```javascript
+**React/TypeScript Example:**
+```typescript
 // ❌ BAD - Unclear names
 const d = new Date();
-function proc(data) { /* ... */ }
+function proc(data: any) { /* ... */ }
 const flg = true;
 const x = getUserData();
 
 // ✅ GOOD - Clear, expressive names
 const currentDate = new Date();
-function processPayment(paymentData) { /* ... */ }
+function processPayment(paymentData: PaymentData) { /* ... */ }
 const isAuthenticated = true;
 const userData = getUserData();
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - Unclear names
+val d = Date()
+fun proc(data: Any) { /* ... */ }
+val flg = true
+val x = getUserData()
+
+// ✅ GOOD - Clear, expressive names
+val currentDate = Date()
+fun processPayment(paymentData: PaymentData) { /* ... */ }
+val isAuthenticated = true
+val userData = getUserData()
 ```
 
 ### Consistent Naming
@@ -132,20 +194,20 @@ const userData = getUserData();
 - [ ] Non-obvious business rules documented
 - [ ] TODOs have context and owner/ticket reference
 
-**Example:**
-```java
+**React/TypeScript Example:**
+```typescript
 // ❌ BAD - Obvious comment (doesn't add value)
 // Increment counter by 1
 counter++;
 
 // ❌ BAD - Outdated or wrong comment
 // Check if user is admin (code actually checks if user is verified)
-if (user.isVerified()) { /* ... */ }
+if (user.isVerified) { /* ... */ }
 
 // ✅ GOOD - Explains "why" and business context
 // Apply 10% discount for loyalty program members as per marketing campaign Q4-2024
-if (user.isLoyaltyMember()) {
-    discount = 0.10;
+if (user.isLoyaltyMember) {
+  discount = 0.10;
 }
 
 // ✅ GOOD - Explains complex algorithm
@@ -157,6 +219,33 @@ const index = boyerMooreSearch(text, pattern);
 // TODO(jdoe): Refactor to use new PaymentGatewayV2 after migration
 // See ticket: PROJ-1234
 const result = await legacyPaymentGateway.process(payment);
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - Obvious comment (doesn't add value)
+// Increment counter by 1
+counter++
+
+// ❌ BAD - Outdated or wrong comment
+// Check if user is admin (code actually checks if user is verified)
+if (user.isVerified) { /* ... */ }
+
+// ✅ GOOD - Explains "why" and business context
+// Apply 10% discount for loyalty program members as per marketing campaign Q4-2024
+if (user.isLoyaltyMember) {
+    discount = 0.10
+}
+
+// ✅ GOOD - Explains complex algorithm
+// Use Boyer-Moore algorithm for efficient string matching in large texts
+// Average case: O(n/m), Best case: O(n/m), Worst case: O(nm)
+val index = boyerMooreSearch(text, pattern)
+
+// ✅ GOOD - TODO with context
+// TODO(jdoe): Refactor to use new PaymentGatewayV2 after migration
+// See ticket: PROJ-1234
+val result = legacyPaymentGateway.process(payment)
 ```
 
 ### Documentation Comments
@@ -264,10 +353,10 @@ async function authenticateUser(credentials: LoginCredentials): Promise<User> {
 - [ ] Shared constants defined once
 - [ ] Duplication acceptable only when abstraction would harm clarity
 
-**Example:**
-```javascript
+**React/TypeScript Example:**
+```typescript
 // ❌ BAD - Duplicated validation logic
-function createUser(data) {
+function createUser(data: UserData) {
   if (!data.email || !data.email.includes('@')) {
     throw new Error('Invalid email');
   }
@@ -277,7 +366,7 @@ function createUser(data) {
   // ... create user
 }
 
-function updateUser(id, data) {
+function updateUser(id: string, data: Partial<UserData>) {
   if (!data.email || !data.email.includes('@')) {
     throw new Error('Invalid email');
   }
@@ -288,7 +377,7 @@ function updateUser(id, data) {
 }
 
 // ✅ GOOD - Extracted validation
-function validateUserData(data, isUpdate = false) {
+function validateUserData(data: Partial<UserData>, isUpdate: boolean = false) {
   if (!data.email || !data.email.includes('@')) {
     throw new Error('Invalid email');
   }
@@ -300,14 +389,61 @@ function validateUserData(data, isUpdate = false) {
   }
 }
 
-function createUser(data) {
+function createUser(data: UserData) {
   validateUserData(data);
   // ... create user
 }
 
-function updateUser(id, data) {
+function updateUser(id: string, data: Partial<UserData>) {
   validateUserData(data, true);
   // ... update user
+}
+```
+
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - Duplicated validation logic
+fun createUser(data: UserData) {
+    if (data.email.isEmpty() || !data.email.contains('@')) {
+        throw ValidationException("Invalid email")
+    }
+    if (data.password.isEmpty() || data.password.length < 8) {
+        throw ValidationException("Password too short")
+    }
+    // ... create user
+}
+
+fun updateUser(id: String, data: UserData) {
+    if (data.email.isEmpty() || !data.email.contains('@')) {
+        throw ValidationException("Invalid email")
+    }
+    if (data.password.isNotEmpty() && data.password.length < 8) {
+        throw ValidationException("Password too short")
+    }
+    // ... update user
+}
+
+// ✅ GOOD - Extracted validation
+fun validateUserData(data: UserData, isUpdate: Boolean = false) {
+    if (data.email.isEmpty() || !data.email.contains('@')) {
+        throw ValidationException("Invalid email")
+    }
+    
+    val passwordRequired = !isUpdate
+    if ((passwordRequired && data.password.isEmpty()) ||
+        (data.password.isNotEmpty() && data.password.length < 8)) {
+        throw ValidationException("Password too short")
+    }
+}
+
+fun createUser(data: UserData) {
+    validateUserData(data)
+    // ... create user
+}
+
+fun updateUser(id: String, data: UserData) {
+    validateUserData(data, isUpdate = true)
+    // ... update user
 }
 ```
 
@@ -321,43 +457,93 @@ function updateUser(id, data) {
 - [ ] Configuration values externalized
 - [ ] Enums used for fixed sets of values
 
-**Example:**
-```python
-# ❌ BAD - Magic numbers and strings
-def calculate_price(amount):
-    if amount > 1000:
-        return amount * 0.9
-    elif amount > 500:
-        return amount * 0.95
-    return amount
+**React/TypeScript Example:**
+```typescript
+// ❌ BAD - Magic numbers and strings
+function calculatePrice(amount: number): number {
+  if (amount > 1000) {
+    return amount * 0.9;
+  } else if (amount > 500) {
+    return amount * 0.95;
+  }
+  return amount;
+}
 
-def get_user_role(user):
-    if user.role == "admin":
-        return 1
-    elif user.role == "moderator":
-        return 2
-    return 3
+function getUserRole(user: User): number {
+  if (user.role === "admin") {
+    return 1;
+  } else if (user.role === "moderator") {
+    return 2;
+  }
+  return 3;
+}
 
-# ✅ GOOD - Named constants and enums
-from enum import Enum
+// ✅ GOOD - Named constants and enums
+const DiscountTier = {
+  PREMIUM_THRESHOLD: 1000,
+  PREMIUM_DISCOUNT: 0.10,
+  STANDARD_THRESHOLD: 500,
+  STANDARD_DISCOUNT: 0.05
+} as const;
 
-class DiscountTier:
-    PREMIUM_THRESHOLD = 1000
-    PREMIUM_DISCOUNT = 0.10
-    STANDARD_THRESHOLD = 500
-    STANDARD_DISCOUNT = 0.05
+enum UserRole {
+  ADMIN = 1,
+  MODERATOR = 2,
+  USER = 3
+}
 
-class UserRole(Enum):
-    ADMIN = 1
-    MODERATOR = 2
-    USER = 3
+function calculatePrice(amount: number): number {
+  if (amount > DiscountTier.PREMIUM_THRESHOLD) {
+    return amount * (1 - DiscountTier.PREMIUM_DISCOUNT);
+  } else if (amount > DiscountTier.STANDARD_THRESHOLD) {
+    return amount * (1 - DiscountTier.STANDARD_DISCOUNT);
+  }
+  return amount;
+}
+```
 
-def calculate_price(amount: float) -> float:
-    if amount > DiscountTier.PREMIUM_THRESHOLD:
-        return amount * (1 - DiscountTier.PREMIUM_DISCOUNT)
-    elif amount > DiscountTier.STANDARD_THRESHOLD:
-        return amount * (1 - DiscountTier.STANDARD_DISCOUNT)
-    return amount
+**Kotlin Example:**
+```kotlin
+// ❌ BAD - Magic numbers and strings
+fun calculatePrice(amount: Double): Double {
+    return when {
+        amount > 1000 -> amount * 0.9
+        amount > 500 -> amount * 0.95
+        else -> amount
+    }
+}
+
+fun getUserRole(user: User): Int {
+    return when (user.role) {
+        "admin" -> 1
+        "moderator" -> 2
+        else -> 3
+    }
+}
+
+// ✅ GOOD - Named constants and enums
+object DiscountTier {
+    const val PREMIUM_THRESHOLD = 1000.0
+    const val PREMIUM_DISCOUNT = 0.10
+    const val STANDARD_THRESHOLD = 500.0
+    const val STANDARD_DISCOUNT = 0.05
+}
+
+enum class UserRole(val value: Int) {
+    ADMIN(1),
+    MODERATOR(2),
+    USER(3)
+}
+
+fun calculatePrice(amount: Double): Double {
+    return when {
+        amount > DiscountTier.PREMIUM_THRESHOLD -> 
+            amount * (1 - DiscountTier.PREMIUM_DISCOUNT)
+        amount > DiscountTier.STANDARD_THRESHOLD -> 
+            amount * (1 - DiscountTier.STANDARD_DISCOUNT)
+        else -> amount
+    }
+}
 ```
 
 ---
