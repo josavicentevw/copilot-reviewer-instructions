@@ -166,16 +166,15 @@ For comprehensive contribution guidelines, please read **[CONTRIBUTING.md](CONTR
 ### Getting Help
 
 - 📖 **Documentation**: Start with the [Team Customization Guide](templates/team-customization-guide.md)
-- 💬 **Questions**: Open a [GitHub Issue](https://github.com/josavicentevw/copilot-reviewer-instructions/issues) with the `question` label
+- 💬 **Questions**: Open a GitHub Issue with the `question` label
 - 🐛 **Bug Reports**: Use the issue template in [CONTRIBUTING.md](CONTRIBUTING.md)
 - 💡 **Feature Requests**: We'd love to hear your ideas!
 
 ### Community
 
+- **GitHub Issues**: For bugs, enhancements, questions, and tracked discussions
 - **GitHub Discussions**: For general questions and community support
-- **Slack**: Contact me via Slack for quick questions
-- **Issues**: For bugs, enhancements, and tracked discussions
 
 ---
 
-**Questions or feedback?** Open an [issue](https://github.com/josavicentevw/copilot-reviewer-instructions/issues) or reach out via Slack!
+**Questions or feedback?** Open an issue to reach the team!

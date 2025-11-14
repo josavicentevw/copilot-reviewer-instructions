@@ -698,7 +698,7 @@ connection.prepareStatement(query).apply {
 ## Questions?
 
 For questions about the feedback process:
-- Slack: #copilot-reviews
+- Open an issue in the repository
 - Office Hours: Last Thursday of each month
 
 ---

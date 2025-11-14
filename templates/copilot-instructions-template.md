@@ -337,8 +337,7 @@ Example:
 **How to Propose Changes:**
 1. Open PR against this repository  <!-- CUSTOMIZE: Change to your team's repo -->
 2. Tag `VW D:H` for review  <!-- CUSTOMIZE: Change to your reviewers -->
-3. Announce in `#engineering-practices` channel  <!-- CUSTOMIZE: Change to your Slack channel -->
-4. Update "Last Updated" date upon merge
+3. Update "Last Updated" date upon merge
 
 ---
 

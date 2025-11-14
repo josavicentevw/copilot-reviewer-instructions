@@ -970,9 +970,9 @@ After completing customization:
 - [Stack Rules README](../docs/stack-rules/README.md) - Adding new technology stacks
 
 ### Getting Help
-- **Team Owner:** Contact `VW D:H` (or your designated owner)
-- **Issues:** Report in repository issues or team channel
-- **Discussions:** Use team Slack channel or email list
+- **Team Owner:** Contact VW D:H (or your designated owner)
+- **Issues:** Report in repository issues
+- **Discussions:** Use GitHub Discussions for general questions
 
 ### Contributing
 If you develop useful customizations, consider contributing them back:

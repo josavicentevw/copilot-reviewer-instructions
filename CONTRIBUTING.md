@@ -172,9 +172,9 @@ Even if you don't submit code, sharing your experience helps!
    git clone https://github.com/YOUR-USERNAME/copilot-reviewer-instructions.git
    cd copilot-reviewer-instructions
    ```
-3. **Add upstream remote**:
+3. **Add upstream remote** (replace with the actual repository URL):
    ```bash
-   git remote add upstream https://github.com/josavicentevw/copilot-reviewer-instructions.git
+   git remote add upstream https://github.com/OWNER/copilot-reviewer-instructions.git
    ```
 
 ### Create a Branch

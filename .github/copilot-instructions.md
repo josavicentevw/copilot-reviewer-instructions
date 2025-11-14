@@ -230,8 +230,7 @@ Reference: [`docs/stack-rules/react-typescript-rules.md`](../docs/stack-rules/re
 **How to Propose Changes:**
 1. Open PR against this repository
 2. Tag `VW D:H` for review
-3. Announce in `#engineering-practices` channel
-4. Update "Last Updated" date upon merge
+3. Update "Last Updated" date upon merge
 
 ---
 

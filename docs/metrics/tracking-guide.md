@@ -689,7 +689,6 @@ jobs:
 If you have questions about metrics collection or ideas for new metrics, please:
 - Open an issue in the repository
 - Contact VW D:H
-- Share in the #copilot-reviews channel
 
 ---
 
