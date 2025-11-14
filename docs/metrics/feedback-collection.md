@@ -699,7 +699,6 @@ connection.prepareStatement(query).apply {
 
 For questions about the feedback process:
 - Slack: #copilot-reviews
-- Email: vw-dh@example.com
 - Office Hours: Last Thursday of each month
 
 ---
