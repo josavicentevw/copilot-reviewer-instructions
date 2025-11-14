@@ -86,20 +86,20 @@ Based on: `0001-prd-copilot-reviewer-instructions.md`
     - [x] 3.5.4 Add comment guidelines (only when adding context)
     - [x] 3.5.5 Add type/contract visibility requirements
 
-- [ ] 4.0 Implementar reglas específicas por stack tecnológico (Kotlin y React/TypeScript)
-  - [ ] 4.1 Create `docs/stack-rules/java-kotlin-rules.md`
-    - [ ] 4.1.1 Add null-safety requirements and best practices
-    - [ ] 4.1.2 Add sealed/data classes usage guidelines
-    - [ ] 4.1.3 Add repository/DAO rules (parameterized queries, required indexes)
-    - [ ] 4.1.4 Add dependency injection and configuration best practices
-    - [ ] 4.1.5 Add logging and exception handling patterns
-  - [ ] 4.2 Create `docs/stack-rules/react-typescript-rules.md`
-    - [ ] 4.2.1 Add TypeScript strict mode requirements (avoid `any` unless justified)
-    - [ ] 4.2.2 Add React hooks rules (proper dependency arrays, custom hooks)
-    - [ ] 4.2.3 Add component patterns (functional components, prop interfaces)
-    - [ ] 4.2.4 Add state management best practices (useState, useEffect, context)
-    - [ ] 4.2.5 Add HTTP client requirements (timeouts, abort controllers, error handling)
-  - [ ] 4.3 Add extensibility notes for future stack additions (Python, Swift, etc.)
+- [x] 4.0 Implementar reglas específicas por stack tecnológico (Kotlin y React/TypeScript)
+  - [x] 4.1 Create `docs/stack-rules/java-kotlin-rules.md`
+    - [x] 4.1.1 Add null-safety requirements and best practices
+    - [x] 4.1.2 Add sealed/data classes usage guidelines
+    - [x] 4.1.3 Add repository/DAO rules (parameterized queries, required indexes)
+    - [x] 4.1.4 Add dependency injection and configuration best practices
+    - [x] 4.1.5 Add logging and exception handling patterns
+  - [x] 4.2 Create `docs/stack-rules/react-typescript-rules.md`
+    - [x] 4.2.1 Add TypeScript strict mode requirements (avoid `any` unless justified)
+    - [x] 4.2.2 Add React hooks rules (proper dependency arrays, custom hooks)
+    - [x] 4.2.3 Add component patterns (functional components, prop interfaces)
+    - [x] 4.2.4 Add state management best practices (useState, useEffect, context)
+    - [x] 4.2.5 Add HTTP client requirements (timeouts, abort controllers, error handling)
+  - [x] 4.3 Add extensibility notes for future stack additions (Python, Swift, etc.)
 
 - [ ] 5.0 Crear plantillas personalizables y guía de uso para equipos
   - [ ] 5.1 Create `templates/copilot-instructions-template.md` as customizable base
