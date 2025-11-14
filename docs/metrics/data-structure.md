@@ -1008,5 +1008,5 @@ def validate_pr_review(data):
 
 For questions about data structures or schema changes, please:
 - Open an issue in the repository
-- Contact the platform team
+- Contact VW D:H
 - Share in the #copilot-reviews channel

@@ -66,7 +66,7 @@ Collect → Analyze → Prioritize → Improve → Communicate → Collect
 **Office Hours / Feedback Sessions**
 - Monthly 30-minute open session
 - Teams can ask questions, share experiences
-- Platform team shares updates and roadmap
+- VW D:H team shares updates and roadmap
 
 ### 2. PR Comments and Reactions
 
@@ -126,7 +126,11 @@ gh pr list --state closed --search "false positive" --json number,title
 - Any specific false positives or missed issues?
 - Ideas for improvement?
 
-**Platform team retrospective** (monthly):
+### Monthly Retrospectives
+
+**Purpose:** Reflect on what's working and what needs improvement
+
+**VW D:H team retrospective** (monthly):
 - Review all feedback collected
 - Identify top 3 themes
 - Plan next month's improvements
@@ -552,7 +556,7 @@ Q2 2025 Roadmap
 
 ### End of Quarter Deep Dive (Half-day session)
 
-**Attendees**: Platform team + 2-3 team representatives
+**Attendees**: VW D:H team + 2-3 team representatives
 
 **Agenda**:
 
@@ -695,7 +699,7 @@ connection.prepareStatement(query).apply {
 
 For questions about the feedback process:
 - Slack: #copilot-reviews
-- Email: platform-team@example.com
+- Email: vw-dh@example.com
 - Office Hours: Last Thursday of each month
 
 ---

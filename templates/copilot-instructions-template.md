@@ -330,13 +330,13 @@ Example:
 <!-- [CUSTOMIZABLE - Team Information] -->
 <!-- Update with your team's information and processes -->
 
-**Owners:** @platform-team  <!-- CUSTOMIZE: Change to your team's handle -->
+**Owners:** VW D:H  <!-- CUSTOMIZE: Change to your team's handle -->
 **Last Updated:** 2025-11-14  <!-- CUSTOMIZE: Update when making changes -->
 **Review Cadence:** Quarterly or when major patterns change  
 
 **How to Propose Changes:**
 1. Open PR against this repository  <!-- CUSTOMIZE: Change to your team's repo -->
-2. Tag `@platform-team` for review  <!-- CUSTOMIZE: Change to your reviewers -->
+2. Tag `VW D:H` for review  <!-- CUSTOMIZE: Change to your reviewers -->
 3. Announce in `#engineering-practices` channel  <!-- CUSTOMIZE: Change to your Slack channel -->
 4. Update "Last Updated" date upon merge
 

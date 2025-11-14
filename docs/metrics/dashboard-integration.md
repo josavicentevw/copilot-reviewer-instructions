@@ -656,7 +656,7 @@ if __name__ == '__main__':
 ### Email Reports
 
 **Scheduled weekly email** (via SendGrid, Mailgun, or SES):
-- To: Engineering leads, platform team
+- To: Engineering leads, VW D:H
 - Subject: "Copilot Review Metrics - Week {week}"
 - Content: HTML report with charts (embedded images)
 - Attachment: CSV export for deeper analysis

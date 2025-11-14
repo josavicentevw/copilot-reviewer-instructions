@@ -223,13 +223,13 @@ Reference: [`docs/stack-rules/react-typescript-rules.md`](../docs/stack-rules/re
 
 ## 8. Metadata and Governance
 
-**Owners:** @platform-team  
+**Owners:** VW D:H  
 **Last Updated:** 2025-11-14  
 **Review Cadence:** Quarterly or when major patterns change  
 
 **How to Propose Changes:**
 1. Open PR against this repository
-2. Tag `@platform-team` for review
+2. Tag `VW D:H` for review
 3. Announce in `#engineering-practices` channel
 4. Update "Last Updated" date upon merge
 

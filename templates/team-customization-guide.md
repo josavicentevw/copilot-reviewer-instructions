@@ -970,7 +970,7 @@ After completing customization:
 - [Stack Rules README](../docs/stack-rules/README.md) - Adding new technology stacks
 
 ### Getting Help
-- **Team Owner:** Contact `@platform-team` (or your designated owner)
+- **Team Owner:** Contact `VW D:H` (or your designated owner)
 - **Issues:** Report in repository issues or team channel
 - **Discussions:** Use team Slack channel or email list
 
@@ -983,4 +983,4 @@ If you develop useful customizations, consider contributing them back:
 
 ---
 
-**Questions or suggestions?** Open an issue or contact the platform team!
+**Questions or suggestions?** Open an issue or contact VW D:H!

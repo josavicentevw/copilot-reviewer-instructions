@@ -124,14 +124,58 @@ See detailed examples in the main documentation.
 
 ## Contributing
 
-We welcome contributions! See our contribution guidelines in the repository.
+We welcome contributions from everyone! Whether you're:
+
+- 🐛 **Reporting bugs** or false positive patterns
+- 💡 **Suggesting enhancements** or new features
+- 📚 **Improving documentation** or adding examples
+- 🔧 **Adding new technology stack rules** (Python, Go, Swift, etc.)
+- 🧪 **Sharing feedback** from real-world usage
+
+Your contributions make this project better for everyone!
+
+### Quick Start for Contributors
+
+1. **Fork** the repository
+2. **Create a branch** for your changes (`feature/add-python-rules`)
+3. **Make your changes** following our style guide
+4. **Submit a pull request** with a clear description
+
+### Detailed Guidelines
+
+For comprehensive contribution guidelines, please read **[CONTRIBUTING.md](CONTRIBUTING.md)**, which covers:
+
+- Code of Conduct and community standards
+- How to report issues and suggest enhancements
+- Step-by-step guide for adding new technology stacks
+- Documentation standards and best practices
+- Pull request process and review timeline
+- Style guide and formatting conventions
+
+### Areas We'd Love Help With
+
+- **New stack rules**: Python, Go, Swift, Ruby, Rust
+- **Improved examples**: More real-world scenarios
+- **Translations**: While source stays in English, translations help adoption
+- **Metrics and case studies**: Share your team's results and ROI
 
 ---
 
 ## Support
 
-For help and questions, please refer to the [Team Customization Guide](templates/team-customization-guide.md).
+### Getting Help
+
+- 📖 **Documentation**: Start with the [Team Customization Guide](templates/team-customization-guide.md)
+- 💬 **Questions**: Open a [GitHub Issue](https://github.com/josavicentevw/copilot-reviewer-instructions/issues) with the `question` label
+- 🐛 **Bug Reports**: Use the issue template in [CONTRIBUTING.md](CONTRIBUTING.md)
+- 💡 **Feature Requests**: We'd love to hear your ideas!
+
+### Community
+
+- **GitHub Discussions**: For general questions and community support
+- **Slack**: Contact me via Slack for quick questions
+- **Issues**: For bugs, enhancements, and tracked discussions
 
 ---
 
-**Questions or feedback?** Open an issue or contact the platform team.
+**Questions or feedback?** Open an [issue](https://github.com/josavicentevw/copilot-reviewer-instructions/issues) or reach out via Slack!

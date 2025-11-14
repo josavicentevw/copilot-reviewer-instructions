@@ -230,7 +230,7 @@ Add to "Available Stack Rules":
 To propose changes to existing stack rules:
 
 1. Open a PR with proposed changes
-2. Tag `@platform-team` for review
+2. Tag `VW D:H` for review
 3. Announce in `#engineering-practices` Slack channel
 4. Update "Last Updated" date in the file
 
@@ -240,5 +240,5 @@ To propose changes to existing stack rules:
 
 For questions or suggestions about stack-specific rules:
 - Open an issue in this repository
-- Contact `@platform-team` in Slack
+- Contact `VW D:H` in Slack
 - Propose a PR with your suggested changes
