@@ -45,16 +45,16 @@ Based on: `0001-prd-copilot-reviewer-instructions.md`
   - [x] 1.5 Create `templates/` directory for customizable templates
   - [x] 1.6 Create `.gitignore` entries if needed for generated or temporary files
 
-- [ ] 2.0 Implementar instrucciones principales de Copilot (.github/copilot-instructions.md)
-  - [ ] 2.1 Create file header with purpose and scope section
-  - [ ] 2.2 Define response style section (language: es-ES, professional tone, severity levels)
-  - [ ] 2.3 Document output format structure (summary, findings with severity, quick checklist)
-  - [ ] 2.4 Specify review priorities (Security > Reliability > Performance > Testing > Observability > Readability)
-  - [ ] 2.5 Add cross-cutting rules section with references to specialized checklists
-  - [ ] 2.6 Define severity levels (Bloqueante, Importante, Sugerencia) with clear criteria
-  - [ ] 2.7 Add exclusion patterns section (generated files, lockfiles, non-technical markdown)
-  - [ ] 2.8 Include output template with examples of good feedback
-  - [ ] 2.9 Add metadata section (owners, last review date, how to propose changes)
+- [x] 2.0 Implementar instrucciones principales de Copilot (.github/copilot-instructions.md)
+  - [x] 2.1 Create file header with purpose and scope section
+  - [x] 2.2 Define response style section (language: es-ES, professional tone, severity levels)
+  - [x] 2.3 Document output format structure (summary, findings with severity, quick checklist)
+  - [x] 2.4 Specify review priorities (Security > Reliability > Performance > Testing > Observability > Readability)
+  - [x] 2.5 Add cross-cutting rules section with references to specialized checklists
+  - [x] 2.6 Define severity levels (Bloqueante, Importante, Sugerencia) with clear criteria
+  - [x] 2.7 Add exclusion patterns section (generated files, lockfiles, non-technical markdown)
+  - [x] 2.8 Include output template with examples of good feedback
+  - [x] 2.9 Add metadata section (owners, last review date, how to propose changes)
 
 - [ ] 3.0 Crear checklists especializados por área técnica (security, testing, performance, reliability, readability)
   - [ ] 3.1 Create `docs/review/security-checklist.md` with comprehensive security validations
