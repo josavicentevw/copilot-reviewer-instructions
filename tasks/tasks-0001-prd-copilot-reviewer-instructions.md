@@ -101,34 +101,34 @@ Based on: `0001-prd-copilot-reviewer-instructions.md`
     - [x] 4.2.5 Add HTTP client requirements (timeouts, abort controllers, error handling)
   - [x] 4.3 Add extensibility notes for future stack additions (Python, Swift, etc.)
 
-- [ ] 5.0 Crear plantillas personalizables y guía de uso para equipos
-  - [ ] 5.1 Create `templates/copilot-instructions-template.md` as customizable base
-    - [ ] 5.1.1 Include all sections from main instructions with placeholder comments
-    - [ ] 5.1.2 Mark clearly customizable sections (team-specific rules, exclusions)
-    - [ ] 5.1.3 Add inline comments explaining each section's purpose
-    - [ ] 5.1.4 Include examples of common customizations
-  - [ ] 5.2 Create `templates/team-customization-guide.md` with step-by-step instructions
-    - [ ] 5.2.1 Explain how to copy and customize the base template
-    - [ ] 5.2.2 Document common customization scenarios (different severity levels, additional stacks)
-    - [ ] 5.2.3 Provide examples of team-specific rules
-    - [ ] 5.2.4 Add troubleshooting section for common issues
-    - [ ] 5.2.5 Include best practices for maintaining customized versions
-  - [ ] 5.3 Update main README.md with quick start guide
-    - [ ] 5.3.1 Add "Getting Started" section
-    - [ ] 5.3.2 Add "For Teams" section with customization instructions
-    - [ ] 5.3.3 Add "Contributing" section for proposing changes
-    - [ ] 5.3.4 Add examples and use cases
+- [x] 5.0 Crear plantillas personalizables y guía de uso para equipos
+  - [x] 5.1 Create `templates/copilot-instructions-template.md` as customizable base
+    - [x] 5.1.1 Include all sections from main instructions with placeholder comments
+    - [x] 5.1.2 Mark clearly customizable sections (team-specific rules, exclusions)
+    - [x] 5.1.3 Add inline comments explaining each section's purpose
+    - [x] 5.1.4 Include examples of common customizations
+  - [x] 5.2 Create `templates/team-customization-guide.md` with step-by-step instructions
+    - [x] 5.2.1 Explain how to copy and customize the base template
+    - [x] 5.2.2 Document common customization scenarios (different severity levels, additional stacks)
+    - [x] 5.2.3 Provide examples of team-specific rules
+    - [x] 5.2.4 Add troubleshooting section for common issues
+    - [x] 5.2.5 Include best practices for maintaining customized versions
+  - [x] 5.3 Update main README.md with quick start guide
+    - [x] 5.3.1 Add "Getting Started" section
+    - [x] 5.3.2 Add "For Teams" section with customization instructions
+    - [x] 5.3.3 Add "Contributing" section for proposing changes
+    - [x] 5.3.4 Add examples and use cases
 
-- [ ] 6.0 Documentar sistema de métricas y preparar estructura para tracking
-  - [ ] 6.1 Create `docs/metrics/tracking-guide.md` with metrics overview
-    - [ ] 6.1.1 Document Phase 1 basic metrics (adoption rate, common issue types)
-    - [ ] 6.1.2 Document Phase 2 intermediate metrics (review time reduction, false positive rate)
-    - [ ] 6.1.3 Document Phase 3 advanced metrics (correlation with production bugs, ROI)
-    - [ ] 6.1.4 Explain how to collect metrics manually initially
-  - [ ] 6.2 Create `docs/metrics/data-structure.md` with data schema specification
-    - [ ] 6.2.1 Define required fields in Copilot responses for tracking
-    - [ ] 6.2.2 Specify data format for metric collection (JSON schema)
-    - [ ] 6.2.3 Document how to structure severity, area, and resolution data
-    - [ ] 6.2.4 Add examples of properly formatted metric data
-  - [ ] 6.3 Add notes on future dashboard integration points
-  - [ ] 6.4 Document feedback collection process for continuous improvement
+- [x] 6.0 Documentar sistema de métricas y preparar estructura para tracking
+  - [x] 6.1 Create `docs/metrics/tracking-guide.md` with metrics overview
+    - [x] 6.1.1 Document Phase 1 basic metrics (adoption rate, common issue types)
+    - [x] 6.1.2 Document Phase 2 intermediate metrics (review time reduction, false positive rate)
+    - [x] 6.1.3 Document Phase 3 advanced metrics (correlation with production bugs, ROI)
+    - [x] 6.1.4 Explain how to collect metrics manually initially
+  - [x] 6.2 Create `docs/metrics/data-structure.md` with data schema specification
+    - [x] 6.2.1 Define required fields in Copilot responses for tracking
+    - [x] 6.2.2 Specify data format for metric collection (JSON schema)
+    - [x] 6.2.3 Document how to structure severity, area, and resolution data
+    - [x] 6.2.4 Add examples of properly formatted metric data
+  - [x] 6.3 Add notes on future dashboard integration points
+  - [x] 6.4 Document feedback collection process for continuous improvement
