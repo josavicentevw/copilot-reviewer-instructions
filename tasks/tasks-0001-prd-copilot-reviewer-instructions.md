@@ -20,10 +20,11 @@ Based on: `0001-prd-copilot-reviewer-instructions.md`
 - `docs/review/performance-checklist.md` - Performance and cost optimization checklist
 - `docs/review/reliability-checklist.md` - Reliability and resilience patterns checklist
 - `docs/review/readability-checklist.md` - Code readability and DX standards checklist
+- `docs/review/code-conventions.md` - Team-specific code conventions (test builders, naming, SBOM)
 - `templates/copilot-instructions-template.md` - Customizable base template for teams
 - `templates/team-customization-guide.md` - Guide for teams to customize their templates
-- `docs/stack-rules/java-kotlin-rules.md` - Specific rules for Java/Kotlin stack
-- `docs/stack-rules/nodejs-typescript-rules.md` - Specific rules for Node.js/TypeScript stack
+- `docs/stack-rules/java-kotlin-rules.md` - Specific rules for Kotlin stack
+- `docs/stack-rules/react-typescript-rules.md` - Specific rules for React/TypeScript stack
 - `docs/metrics/tracking-guide.md` - Guide for tracking review metrics
 - `docs/metrics/data-structure.md` - Data structure specification for metrics collection
 - `README.md` - Main project documentation and quick start guide
@@ -56,48 +57,48 @@ Based on: `0001-prd-copilot-reviewer-instructions.md`
   - [x] 2.8 Include output template with examples of good feedback
   - [x] 2.9 Add metadata section (owners, last review date, how to propose changes)
 
-- [ ] 3.0 Crear checklists especializados por área técnica (security, testing, performance, reliability, readability)
-  - [ ] 3.1 Create `docs/review/security-checklist.md` with comprehensive security validations
-    - [ ] 3.1.1 Add secrets and credentials checks (no plaintext, use Key Vault/KMS)
-    - [ ] 3.1.2 Add input/output validation rules (XSS, SQLi/NoSQLi, SSRF prevention)
-    - [ ] 3.1.3 Add authentication and authorization checks (token expiration, minimal scopes)
-    - [ ] 3.1.4 Add dependency vulnerability checks (CVEs, suggest safe versions)
-    - [ ] 3.1.5 Add encryption requirements (TLS in transit, encryption at rest)
-    - [ ] 3.1.6 Add PII/secret masking requirements for logs and traces
-  - [ ] 3.2 Create `docs/review/testing-checklist.md` with testing requirements
-    - [ ] 3.2.1 Add unit test requirements for new/critical logic
-    - [ ] 3.2.2 Add contract/API test requirements when schemas change
-    - [ ] 3.2.3 Add test data requirements (realistic, no real PII)
-    - [ ] 3.2.4 Add coverage criteria or rationale if not applicable
-  - [ ] 3.3 Create `docs/review/performance-checklist.md` with optimization rules
-    - [ ] 3.3.1 Add N+1 query prevention and index requirements
-    - [ ] 3.3.2 Add pagination/streaming requirements for large responses
-    - [ ] 3.3.3 Add caching rules with TTL and invalidation strategies
-    - [ ] 3.3.4 Add complexity requirements (avoid unnecessary O(n²))
-  - [ ] 3.4 Create `docs/review/reliability-checklist.md` with resilience patterns
-    - [ ] 3.4.1 Add timeout, retry with backoff, and circuit breaker requirements
-    - [ ] 3.4.2 Add idempotency requirements for operations with side effects
-    - [ ] 3.4.3 Add explicit error handling and partial failure management
-  - [ ] 3.5 Create `docs/review/readability-checklist.md` with code quality standards
-    - [ ] 3.5.1 Add rules against nested ternaries
-    - [ ] 3.5.2 Add cyclomatic complexity guidelines
-    - [ ] 3.5.3 Add naming convention requirements (expressive names)
-    - [ ] 3.5.4 Add comment guidelines (only when adding context)
-    - [ ] 3.5.5 Add type/contract visibility requirements
+- [x] 3.0 Crear checklists especializados por área técnica (security, testing, performance, reliability, readability)
+  - [x] 3.1 Create `docs/review/security-checklist.md` with comprehensive security validations
+    - [x] 3.1.1 Add secrets and credentials checks (no plaintext, use Key Vault/KMS)
+    - [x] 3.1.2 Add input/output validation rules (XSS, SQLi/NoSQLi, SSRF prevention)
+    - [x] 3.1.3 Add authentication and authorization checks (token expiration, minimal scopes)
+    - [x] 3.1.4 Add dependency vulnerability checks (CVEs, suggest safe versions)
+    - [x] 3.1.5 Add encryption requirements (TLS in transit, encryption at rest)
+    - [x] 3.1.6 Add PII/secret masking requirements for logs and traces
+  - [x] 3.2 Create `docs/review/testing-checklist.md` with testing requirements
+    - [x] 3.2.1 Add unit test requirements for new/critical logic
+    - [x] 3.2.2 Add contract/API test requirements when schemas change
+    - [x] 3.2.3 Add test data requirements (realistic, no real PII)
+    - [x] 3.2.4 Add coverage criteria or rationale if not applicable
+  - [x] 3.3 Create `docs/review/performance-checklist.md` with optimization rules
+    - [x] 3.3.1 Add N+1 query prevention and index requirements
+    - [x] 3.3.2 Add pagination/streaming requirements for large responses
+    - [x] 3.3.3 Add caching rules with TTL and invalidation strategies
+    - [x] 3.3.4 Add complexity requirements (avoid unnecessary O(n²))
+  - [x] 3.4 Create `docs/review/reliability-checklist.md` with resilience patterns
+    - [x] 3.4.1 Add timeout, retry with backoff, and circuit breaker requirements
+    - [x] 3.4.2 Add idempotency requirements for operations with side effects
+    - [x] 3.4.3 Add explicit error handling and partial failure management
+  - [x] 3.5 Create `docs/review/readability-checklist.md` with code quality standards
+    - [x] 3.5.1 Add rules against nested ternaries
+    - [x] 3.5.2 Add cyclomatic complexity guidelines
+    - [x] 3.5.3 Add naming convention requirements (expressive names)
+    - [x] 3.5.4 Add comment guidelines (only when adding context)
+    - [x] 3.5.5 Add type/contract visibility requirements
 
-- [ ] 4.0 Implementar reglas específicas por stack tecnológico (Java/Kotlin y Node.js/TypeScript)
+- [ ] 4.0 Implementar reglas específicas por stack tecnológico (Kotlin y React/TypeScript)
   - [ ] 4.1 Create `docs/stack-rules/java-kotlin-rules.md`
     - [ ] 4.1.1 Add null-safety requirements and best practices
     - [ ] 4.1.2 Add sealed/data classes usage guidelines
     - [ ] 4.1.3 Add repository/DAO rules (parameterized queries, required indexes)
     - [ ] 4.1.4 Add dependency injection and configuration best practices
     - [ ] 4.1.5 Add logging and exception handling patterns
-  - [ ] 4.2 Create `docs/stack-rules/nodejs-typescript-rules.md`
-    - [ ] 4.2.1 Add ESLint/TSConfig requirements (avoid `any` unless justified)
-    - [ ] 4.2.2 Add Promise handling rules (safe await, consistent error handling)
-    - [ ] 4.2.3 Add HTTP library requirements (timeouts, abort controllers)
-    - [ ] 4.2.4 Add async/await best practices
-    - [ ] 4.2.5 Add module system and import/export conventions
+  - [ ] 4.2 Create `docs/stack-rules/react-typescript-rules.md`
+    - [ ] 4.2.1 Add TypeScript strict mode requirements (avoid `any` unless justified)
+    - [ ] 4.2.2 Add React hooks rules (proper dependency arrays, custom hooks)
+    - [ ] 4.2.3 Add component patterns (functional components, prop interfaces)
+    - [ ] 4.2.4 Add state management best practices (useState, useEffect, context)
+    - [ ] 4.2.5 Add HTTP client requirements (timeouts, abort controllers, error handling)
   - [ ] 4.3 Add extensibility notes for future stack additions (Python, Swift, etc.)
 
 - [ ] 5.0 Crear plantillas personalizables y guía de uso para equipos

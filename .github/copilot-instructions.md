@@ -15,7 +15,7 @@ These instructions define how GitHub Copilot should review Pull Requests in this
 ## 2. Response Style
 
 ### Language and Tone
-- **Language:** Respond in Spanish (es-ES)
+- **Language:** Respond in English (en-US)
 - **Tone:** Professional, concise, and constructive
 - **Format:** Use bullet points for clarity
 
@@ -23,19 +23,19 @@ These instructions define how GitHub Copilot should review Pull Requests in this
 
 Reviews must classify findings using these severity levels:
 
-- **Bloqueante (Blocking):**
+- **Blocking:**
   - Security vulnerabilities (credential exposure, SQL injection, XSS)
   - Breaking changes without migration path
   - High risk of service outage or data loss
   - Critical compliance violations
   
-- **Importante (Important):**
+- **Important:**
   - Medium impact on reliability or performance
   - Missing tests for critical functionality
   - Code quality issues affecting maintainability
   - Observable degradation in user experience
   
-- **Sugerencia (Suggestion):**
+- **Suggestion:**
   - Non-critical improvements
   - Style and formatting recommendations
   - Refactoring opportunities
@@ -50,24 +50,25 @@ All reviews must follow this standardized structure:
 ### Review Template
 
 ```markdown
-**Resumen**
+**Summary**
 - [Brief description of PR scope - 1 line]
 - [Main risks or concerns - 1-2 points]
-- [Overall status: OK con observaciones | Requiere cambios | Bloqueante]
+- [Overall status: OK with observations | Requires changes | Blocking]
 
-**Hallazgos**
+**Findings**
 - **[Severity] [Area]**: [Brief description]
-  **Evidencia:** [file:line or diff reference]
-  **Corrección propuesta:** [Specific action or code snippet]
-  **Referencia:** [`docs/review/...-checklist.md#section`]
+  **Evidence:** [file:line or diff reference]
+  **Proposed fix:** [Specific action or code snippet]
+  **Reference:** [`docs/review/...-checklist.md#section`]
 
-**Checklist rápida**
-- Seguridad: ✓/✗
+**Quick Checklist**
+- Security: ✓/✗
 - Tests: ✓/✗
-- Performance/Coste: ✓/✗
-- Fiabilidad: ✓/✗
-- Observabilidad: ✓/✗
-- Legibilidad/DX: ✓/✗
+- Performance/Cost: ✓/✗
+- Reliability: ✓/✗
+- Observability: ✓/✗
+- Readability/DX: ✓/✗
+- Code Conventions: ✓/✗
 ```
 
 ### Example Output
@@ -75,29 +76,30 @@ All reviews must follow this standardized structure:
 **Good feedback example:**
 
 ```markdown
-**Resumen**
-- Añade endpoint de autenticación con JWT
-- Riesgo: credenciales en logs, falta rate limiting
-- Estado: Requiere cambios
+**Summary**
+- Adds JWT authentication endpoint
+- Risk: credentials in logs, missing rate limiting
+- Status: Requires changes
 
-**Hallazgos**
-- **Bloqueante | Seguridad**: Credenciales de base de datos en archivo de configuración
-  **Evidencia:** `src/config/database.ts:15`
-  **Corrección propuesta:** Mover credenciales a AWS Secrets Manager y cargar vía variable de entorno `DB_SECRET_ARN`
-  **Referencia:** [`docs/review/security-checklist.md#secrets-management`]
+**Findings**
+- **Blocking | Security**: Database credentials in configuration file
+  **Evidence:** `src/config/database.ts:15`
+  **Proposed fix:** Move credentials to AWS Secrets Manager and load via environment variable `DB_SECRET_ARN`
+  **Reference:** [`docs/review/security-checklist.md#secrets-management`]
 
-- **Importante | Fiabilidad**: Endpoint sin rate limiting
-  **Evidencia:** `src/routes/auth.ts:23-45`
-  **Corrección propuesta:** Implementar rate limiting con express-rate-limit (máx 5 intentos por minuto)
-  **Referencia:** [`docs/review/reliability-checklist.md#rate-limiting`]
+- **Important | Reliability**: Endpoint without rate limiting
+  **Evidence:** `src/routes/auth.ts:23-45`
+  **Proposed fix:** Implement rate limiting with express-rate-limit (max 5 attempts per minute)
+  **Reference:** [`docs/review/reliability-checklist.md#rate-limiting`]
 
-**Checklist rápida**
-- Seguridad: ✗ (credenciales expuestas)
+**Quick Checklist**
+- Security: ✗ (credentials exposed)
 - Tests: ✓
-- Performance/Coste: ✓
-- Fiabilidad: ✗ (sin rate limiting)
-- Observabilidad: ✓
-- Legibilidad/DX: ✓
+- Performance/Cost: ✓
+- Reliability: ✗ (no rate limiting)
+- Observability: ✓
+- Readability/DX: ✓
+- Code Conventions: ✓
 ```
 
 ---
@@ -172,11 +174,18 @@ Apply standards from [`docs/review/readability-checklist.md`](../docs/review/rea
 - **Purposeful comments:** Only when adding non-obvious context
 - **Type visibility:** Leverage type systems (TypeScript, Kotlin types)
 
+### Code Conventions
+Apply team-specific conventions from [`docs/review/code-conventions.md`](../docs/review/code-conventions.md):
+
+- **Test builders:** Use builders for complex test objects, one per domain model
+- **Naming conventions:** Document/Response suffixes (e.g., `UserDocument`, `UserResponse`)
+- **SBOM Inventory:** Follow component naming and versioning standards
+
 ---
 
 ## 6. Stack-Specific Rules
 
-### Java/Kotlin
+### Kotlin
 Reference: [`docs/stack-rules/java-kotlin-rules.md`](../docs/stack-rules/java-kotlin-rules.md)
 
 - **Null safety:** Use Kotlin's null-safe types, avoid `!!` operator
@@ -184,13 +193,15 @@ Reference: [`docs/stack-rules/java-kotlin-rules.md`](../docs/stack-rules/java-ko
 - **Repository patterns:** Require parameterized queries, verify indexes
 - **Exception handling:** Use specific exception types, avoid catching generic `Exception`
 
-### Node.js/TypeScript
-Reference: [`docs/stack-rules/nodejs-typescript-rules.md`](../docs/stack-rules/nodejs-typescript-rules.md)
+### React/TypeScript
+Reference: [`docs/stack-rules/react-typescript-rules.md`](../docs/stack-rules/react-typescript-rules.md)
 
 - **TypeScript strict mode:** Avoid `any` unless justified with comment
-- **Promise handling:** Use `async/await` consistently, handle rejections
+- **React hooks:** Follow hooks rules, proper dependency arrays
+- **Component patterns:** Functional components with TypeScript interfaces for props
+- **State management:** Appropriate use of useState, useEffect, and custom hooks
 - **HTTP timeouts:** All HTTP clients must specify timeouts and abort controllers
-- **Error handling:** Use custom error classes, avoid throwing strings
+- **Error handling:** Use custom error classes, proper error boundaries
 
 ---
 
@@ -226,26 +237,26 @@ Reference: [`docs/stack-rules/nodejs-typescript-rules.md`](../docs/stack-rules/n
 
 ## 9. Example Feedback Scenarios
 
-### Bloqueante Example (Security)
+### Blocking Example (Security)
 ```markdown
-- **Bloqueante | Seguridad**: Uso de credenciales en `config.ts:42`
-  **Evidencia:** `const dbPassword = "hardcoded-password-123"`
-  **Corrección propuesta:** Mover a AWS Secrets Manager y cargar por variable de entorno; documentar variable `DB_SECRET_ARN` en README
-  **Referencia:** [`docs/review/security-checklist.md#secrets-management`]
+- **Blocking | Security**: Credentials used in `config.ts:42`
+  **Evidence:** `const dbPassword = "hardcoded-password-123"`
+  **Proposed fix:** Move to AWS Secrets Manager and load via environment variable; document required variable `DB_SECRET_ARN` in README
+  **Reference:** [`docs/review/security-checklist.md#secrets-management`]
 ```
 
-### Importante Example (Performance)
+### Important Example (Performance)
 ```markdown
-- **Importante | Performance**: Query sin índice en `OrderRepo.findByStatus`
-  **Evidencia:** `SELECT * FROM orders WHERE status = ? ORDER BY created_at`
-  **Corrección propuesta:** Añadir índice compuesto en `(status, created_at)` y implementar paginación
-  **Referencia:** [`docs/review/performance-checklist.md#database-indexes`]
+- **Important | Performance**: Query without index in `OrderRepo.findByStatus`
+  **Evidence:** `SELECT * FROM orders WHERE status = ? ORDER BY created_at`
+  **Proposed fix:** Add composite index on `(status, created_at)` and implement pagination
+  **Reference:** [`docs/review/performance-checklist.md#database-indexes`]
 ```
 
-### Sugerencia Example (Readability)
+### Suggestion Example (Readability)
 ```markdown
-- **Sugerencia | DX**: Ternaria anidada en `pricing.ts:28`
-  **Evidencia:** `const price = tier === 'premium' ? (volume > 100 ? 0.8 : 0.9) : 1.0`
-  **Corrección propuesta:** Extraer a función `getPriceTier(tier, volume)` con lógica clara
-  **Referencia:** [`docs/review/readability-checklist.md#avoid-nested-ternaries`]
+- **Suggestion | DX**: Nested ternary in `pricing.ts:28`
+  **Evidence:** `const price = tier === 'premium' ? (volume > 100 ? 0.8 : 0.9) : 1.0`
+  **Proposed fix:** Extract to function `getPriceTier(tier, volume)` with clear logic
+  **Reference:** [`docs/review/readability-checklist.md#avoid-nested-ternaries`]
 ```
