@@ -37,7 +37,7 @@ Based on: `0001-prd-copilot-reviewer-instructions.md`
 
 ## Tasks
 
-- [ ] 1.0 Crear estructura base de directorios y archivos de configuración
+- [x] 1.0 Crear estructura base de directorios y archivos de configuración
   - [x] 1.1 Create `.github/` directory if it doesn't exist
   - [x] 1.2 Create `docs/review/` directory structure
   - [x] 1.3 Create `docs/stack-rules/` directory for stack-specific rules
