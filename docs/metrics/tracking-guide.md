@@ -525,13 +525,19 @@ jobs:
 
 ### Metrics Dashboard
 
-**Future implementation**:
-- BigQuery or PostgreSQL for data storage
-- Grafana or Looker for visualization
-- Weekly/monthly automated reports
-- Alerting for anomalies (sudden spike in false positives, etc.)
+**Database options**:
+- **PostgreSQL** (Recommended) - Free, powerful, works with Grafana/Metabase
+- **SQLite** - Simplest start, no setup required
+- **MongoDB** - Document-based, flexible schema
+- **BigQuery** - For large scale (requires Google Cloud)
 
-**See**: [Reporting and Dashboards](#reporting-and-dashboards) section
+**Visualization tools**:
+- Grafana (open source)
+- Metabase (open source, user-friendly)
+- Apache Superset (open source)
+- Looker/Data Studio (cloud-based)
+
+**See**: [Dashboard Integration Guide](dashboard-integration.md) for detailed setup
 
 ---
 

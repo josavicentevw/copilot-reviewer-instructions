@@ -69,7 +69,7 @@ Track effectiveness and continuously improve your review system:
 
 - **[Metrics Tracking Guide](docs/metrics/tracking-guide.md)** - 3-phase metrics framework (basic → intermediate → advanced)
 - **[Data Structure Specification](docs/metrics/data-structure.md)** - JSON schemas and examples for metric collection
-- **[Dashboard Integration](docs/metrics/dashboard-integration.md)** - BigQuery, Grafana, and automation setup
+- **[Dashboard Integration](docs/metrics/dashboard-integration.md)** - PostgreSQL, SQLite, BigQuery, Grafana setup and automation
 - **[Feedback Collection Process](docs/metrics/feedback-collection.md)** - Systematic feedback gathering and improvement workflow
 
 ### 📋 Structured Feedback Format
@@ -177,4 +177,4 @@ For comprehensive contribution guidelines, please read **[CONTRIBUTING.md](CONTR
 
 ---
 
-**Questions or feedback?** Open an issue to reach the team!
+**Questions or feedback?** Open an issue to reach the team

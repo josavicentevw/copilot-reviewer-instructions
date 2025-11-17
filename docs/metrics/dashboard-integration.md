@@ -98,87 +98,379 @@ This document outlines future integration points for visualizing metrics from th
 
 ---
 
-## BigQuery Integration
+## Data Storage Options
 
-### Why BigQuery?
+Before diving into specific implementations, choose the storage solution that fits your needs and available infrastructure.
 
+### Option 1: PostgreSQL (Recommended for Most Teams)
+
+**Why PostgreSQL?**
+- ✅ **Free and open source** - No cloud vendor lock-in
+- ✅ **Self-hosted or managed** - Use local instance, Docker, or cloud services (AWS RDS, Azure Database, etc.)
+- ✅ **Powerful analytics** - Window functions, CTEs, and aggregations
+- ✅ **Wide tool support** - Works with Grafana, Metabase, Superset, etc.
+- ✅ **ACID compliance** - Strong data consistency
+
+**When to use:**
+- You have infrastructure for running databases
+- Team size: Small to medium (< 100 developers)
+- You need full control over your data
+- Budget constraints (free/low cost)
+
+**Setup:**
+```bash
+# Using Docker
+docker run --name copilot-metrics-db \
+  -e POSTGRES_PASSWORD=yourpassword \
+  -e POSTGRES_DB=copilot_metrics \
+  -p 5432:5432 \
+  -d postgres:15
+
+# Or use managed service (AWS RDS, Azure, etc.)
+```
+
+### Option 2: SQLite (Simplest Start)
+
+**Why SQLite?**
+- ✅ **Zero setup** - Just a file, no server needed
+- ✅ **Perfect for prototyping** - Get started in minutes
+- ✅ **Version control friendly** - Can commit database file to Git
+- ✅ **Low resource usage** - Runs anywhere
+
+**When to use:**
+- Just getting started with metrics
+- Small team (< 10 developers)
+- Low PR volume (< 50 PRs/week)
+- Proof of concept phase
+
+**Limitations:**
+- Not suitable for concurrent writes
+- Limited scalability
+- No remote access without additional tools
+
+### Option 3: BigQuery (Cloud-Native Analytics)
+
+**Why BigQuery?**
 - **Scalable** - Handles large volumes of metrics data
 - **Analytics-optimized** - Fast aggregation and querying
-- **Cost-effective** - Pay only for queries and storage
 - **Google Cloud integration** - Works with Data Studio, Cloud Functions
 - **SQL interface** - Familiar query language
+
+**When to use:**
+- Already using Google Cloud Platform
+- Large scale (100+ developers, 500+ PRs/week)
+- Need advanced analytics and ML capabilities
+
+**Limitations:**
+- ⚠️ **Requires Google Cloud account** - Not free
+- ⚠️ **Query costs** - Pay per data scanned
+- Cloud vendor lock-in
+
+### Option 4: MongoDB/DocumentDB (Document-Based)
+
+**Why MongoDB?**
+- ✅ **Flexible schema** - Store JSON directly
+- ✅ **Horizontal scaling** - Easy to scale out
+- ✅ **Free tier available** - MongoDB Atlas free tier
+
+**When to use:**
+- Prefer NoSQL approach
+- Schema evolves frequently
+- Already using MongoDB in your stack
+
+### Quick Comparison Table
+
+| Feature | SQLite | PostgreSQL | MongoDB | BigQuery |
+|---------|--------|------------|---------|----------|
+| **Cost** | Free | Free/Low | Free tier | Pay per query |
+| **Setup** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| **Scalability** | ⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Query Power** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Best For** | POC | Most teams | NoSQL fans | Large scale |
+
+**Our Recommendation:** Start with **PostgreSQL** for most teams, or **SQLite** if you want to experiment first.
+
+---
+
+## PostgreSQL Integration (Recommended)
 
 ### Schema Design
 
 **Table: `weekly_metrics`**
 ```sql
-CREATE TABLE copilot_metrics.weekly_metrics (
-  week STRING NOT NULL,                    -- ISO week (2025-W16)
-  repository STRING NOT NULL,
-  team_name STRING,
-  total_prs INT64,
-  prs_with_copilot_review INT64,
-  adoption_rate FLOAT64,
-  total_findings INT64,
-  blocking_findings INT64,
-  important_findings INT64,
-  suggestion_findings INT64,
-  false_positive_count INT64,
-  false_positive_rate FLOAT64,
-  average_findings_per_pr FLOAT64,
-  ingestion_timestamp TIMESTAMP,
-  PRIMARY KEY (week, repository) NOT ENFORCED
-)
-PARTITION BY DATE(_PARTITIONTIME)
-CLUSTER BY repository, week;
+CREATE TABLE weekly_metrics (
+  id SERIAL PRIMARY KEY,
+  week VARCHAR(10) NOT NULL,              -- ISO week (2025-W16)
+  repository VARCHAR(255) NOT NULL,
+  team_name VARCHAR(100),
+  total_prs INTEGER NOT NULL,
+  prs_with_copilot_review INTEGER NOT NULL,
+  adoption_rate DECIMAL(5,2),
+  total_findings INTEGER,
+  blocking_findings INTEGER,
+  important_findings INTEGER,
+  suggestion_findings INTEGER,
+  false_positive_count INTEGER,
+  false_positive_rate DECIMAL(5,2),
+  average_findings_per_pr DECIMAL(5,2),
+  ingestion_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(week, repository)
+);
+
+CREATE INDEX idx_weekly_metrics_week ON weekly_metrics(week);
+CREATE INDEX idx_weekly_metrics_repo ON weekly_metrics(repository);
 ```
 
 **Table: `pr_reviews`**
 ```sql
-CREATE TABLE copilot_metrics.pr_reviews (
-  pr_number INT64 NOT NULL,
-  repository STRING NOT NULL,
-  review_date TIMESTAMP,
-  pr_title STRING,
-  pr_author STRING,
-  lines_changed INT64,
-  files_changed INT64,
-  review_time_human FLOAT64,
-  review_time_copilot FLOAT64,
-  time_saved FLOAT64,
-  total_findings INT64,
-  blocking_findings INT64,
-  important_findings INT64,
-  suggestion_findings INT64,
-  ingestion_timestamp TIMESTAMP,
-  PRIMARY KEY (pr_number, repository) NOT ENFORCED
-)
-PARTITION BY DATE(review_date)
-CLUSTER BY repository, review_date;
+CREATE TABLE pr_reviews (
+  id SERIAL PRIMARY KEY,
+  pr_number INTEGER NOT NULL,
+  repository VARCHAR(255) NOT NULL,
+  review_date TIMESTAMP NOT NULL,
+  pr_title TEXT,
+  pr_author VARCHAR(100),
+  lines_changed INTEGER,
+  files_changed INTEGER,
+  review_time_human DECIMAL(10,2),
+  review_time_copilot DECIMAL(10,2),
+  time_saved DECIMAL(10,2),
+  total_findings INTEGER,
+  blocking_findings INTEGER,
+  important_findings INTEGER,
+  suggestion_findings INTEGER,
+  ingestion_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(pr_number, repository)
+);
+
+CREATE INDEX idx_pr_reviews_date ON pr_reviews(review_date);
+CREATE INDEX idx_pr_reviews_repo ON pr_reviews(repository);
 ```
 
 **Table: `findings`**
 ```sql
-CREATE TABLE copilot_metrics.findings (
-  finding_id STRING NOT NULL,              -- finding-{prNumber}-{sequence}
-  pr_number INT64,
-  repository STRING,
+CREATE TABLE findings (
+  id SERIAL PRIMARY KEY,
+  finding_id VARCHAR(100) UNIQUE NOT NULL,   -- finding-{prNumber}-{sequence}
+  pr_number INTEGER,
+  repository VARCHAR(255),
   review_date TIMESTAMP,
-  severity STRING,                          -- blocking, important, suggestion
-  category STRING,                          -- security, testing, performance, etc.
-  area STRING,
-  description STRING,
-  evidence STRING,
-  proposed_fix STRING,
-  reference STRING,
-  resolution STRING,                        -- fixed, wontfix, false-positive
-  resolution_time FLOAT64,
-  resolution_notes STRING,
-  ingestion_timestamp TIMESTAMP,
-  PRIMARY KEY (finding_id) NOT ENFORCED
+  severity VARCHAR(20),                       -- blocking, important, suggestion
+  category VARCHAR(50),                       -- security, testing, performance, etc.
+  area VARCHAR(100),
+  description TEXT,
+  evidence TEXT,
+  proposed_fix TEXT,
+  reference TEXT,
+  resolution VARCHAR(20),                     -- fixed, wontfix, false-positive
+  resolution_time DECIMAL(10,2),
+  resolution_notes TEXT,
+  ingestion_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_findings_date ON findings(review_date);
+CREATE INDEX idx_findings_category ON findings(category);
+CREATE INDEX idx_findings_severity ON findings(severity);
+CREATE INDEX idx_findings_repo ON findings(repository);
+```
+
+### Python Data Insertion Example
+
+**Install dependencies:**
+```bash
+pip install psycopg2-binary
+```
+
+**Insert data into PostgreSQL:**
+```python
+import psycopg2
+from datetime import datetime
+
+def insert_weekly_metrics(conn, metrics_data):
+    """Insert weekly metrics into PostgreSQL"""
+    cursor = conn.cursor()
+    
+    query = """
+        INSERT INTO weekly_metrics (
+            week, repository, team_name, total_prs, 
+            prs_with_copilot_review, adoption_rate, total_findings,
+            blocking_findings, important_findings, suggestion_findings,
+            false_positive_count, false_positive_rate, average_findings_per_pr
+        ) VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+        )
+        ON CONFLICT (week, repository) 
+        DO UPDATE SET
+            total_prs = EXCLUDED.total_prs,
+            prs_with_copilot_review = EXCLUDED.prs_with_copilot_review,
+            adoption_rate = EXCLUDED.adoption_rate,
+            total_findings = EXCLUDED.total_findings,
+            blocking_findings = EXCLUDED.blocking_findings,
+            important_findings = EXCLUDED.important_findings,
+            suggestion_findings = EXCLUDED.suggestion_findings,
+            false_positive_count = EXCLUDED.false_positive_count,
+            false_positive_rate = EXCLUDED.false_positive_rate,
+            average_findings_per_pr = EXCLUDED.average_findings_per_pr,
+            ingestion_timestamp = CURRENT_TIMESTAMP
+    """
+    
+    cursor.execute(query, (
+        metrics_data['week'],
+        metrics_data['repository'],
+        metrics_data.get('teamName'),
+        metrics_data['totalPRs'],
+        metrics_data['prsWithCopilotReview'],
+        metrics_data['adoptionRate'],
+        metrics_data['summary']['totalFindings'],
+        metrics_data['summary']['blockingFindings'],
+        metrics_data['summary']['importantFindings'],
+        metrics_data['summary']['suggestionFindings'],
+        metrics_data['falsePositives']['count'],
+        metrics_data['falsePositives']['rate'],
+        metrics_data['summary']['averageFindingsPerPR']
+    ))
+    
+    conn.commit()
+    cursor.close()
+
+# Usage
+conn = psycopg2.connect(
+    host="localhost",
+    database="copilot_metrics",
+    user="your_user",
+    password="your_password"
 )
-PARTITION BY DATE(review_date)
-CLUSTER BY category, severity, repository;
+
+metrics_data = {
+    "week": "2025-W16",
+    "repository": "my-repo",
+    "teamName": "Backend Team",
+    "totalPRs": 45,
+    "prsWithCopilotReview": 38,
+    "adoptionRate": 84.4,
+    "summary": {
+        "totalFindings": 127,
+        "blockingFindings": 5,
+        "importantFindings": 23,
+        "suggestionFindings": 99,
+        "averageFindingsPerPR": 3.3
+    },
+    "falsePositives": {
+        "count": 8,
+        "rate": 6.3
+    }
+}
+
+insert_weekly_metrics(conn, metrics_data)
+conn.close()
+```
+
+---
+
+## SQLite Integration (Quickstart)
+
+### Schema Design
+
+**Create database and tables:**
+```sql
+-- Same schema as PostgreSQL, with minor type adjustments
+CREATE TABLE weekly_metrics (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  week TEXT NOT NULL,
+  repository TEXT NOT NULL,
+  team_name TEXT,
+  total_prs INTEGER NOT NULL,
+  prs_with_copilot_review INTEGER NOT NULL,
+  adoption_rate REAL,
+  total_findings INTEGER,
+  blocking_findings INTEGER,
+  important_findings INTEGER,
+  suggestion_findings INTEGER,
+  false_positive_count INTEGER,
+  false_positive_rate REAL,
+  average_findings_per_pr REAL,
+  ingestion_timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(week, repository)
+);
+
+CREATE INDEX idx_weekly_metrics_week ON weekly_metrics(week);
+CREATE INDEX idx_weekly_metrics_repo ON weekly_metrics(repository);
+```
+
+### Python Data Insertion Example
+
+```python
+import sqlite3
+import json
+from datetime import datetime
+
+def init_database(db_path='copilot_metrics.db'):
+    """Initialize SQLite database"""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Create tables (use schema above)
+    cursor.executescript('''
+        CREATE TABLE IF NOT EXISTS weekly_metrics (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          week TEXT NOT NULL,
+          repository TEXT NOT NULL,
+          team_name TEXT,
+          total_prs INTEGER NOT NULL,
+          prs_with_copilot_review INTEGER NOT NULL,
+          adoption_rate REAL,
+          total_findings INTEGER,
+          blocking_findings INTEGER,
+          important_findings INTEGER,
+          suggestion_findings INTEGER,
+          false_positive_count INTEGER,
+          false_positive_rate REAL,
+          average_findings_per_pr REAL,
+          ingestion_timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(week, repository)
+        );
+        CREATE INDEX IF NOT EXISTS idx_weekly_metrics_week ON weekly_metrics(week);
+        CREATE INDEX IF NOT EXISTS idx_weekly_metrics_repo ON weekly_metrics(repository);
+    ''')
+    
+    conn.commit()
+    return conn
+
+def insert_weekly_metrics_sqlite(conn, metrics_data):
+    """Insert weekly metrics into SQLite"""
+    cursor = conn.cursor()
+    
+    query = """
+        INSERT OR REPLACE INTO weekly_metrics (
+            week, repository, team_name, total_prs, 
+            prs_with_copilot_review, adoption_rate, total_findings,
+            blocking_findings, important_findings, suggestion_findings,
+            false_positive_count, false_positive_rate, average_findings_per_pr
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+    
+    cursor.execute(query, (
+        metrics_data['week'],
+        metrics_data['repository'],
+        metrics_data.get('teamName'),
+        metrics_data['totalPRs'],
+        metrics_data['prsWithCopilotReview'],
+        metrics_data['adoptionRate'],
+        metrics_data['summary']['totalFindings'],
+        metrics_data['summary']['blockingFindings'],
+        metrics_data['summary']['importantFindings'],
+        metrics_data['summary']['suggestionFindings'],
+        metrics_data['falsePositives']['count'],
+        metrics_data['falsePositives']['rate'],
+        metrics_data['summary']['averageFindingsPerPR']
+    ))
+    
+    conn.commit()
+
+# Usage
+conn = init_database('copilot_metrics.db')
+insert_weekly_metrics_sqlite(conn, metrics_data)
+conn.close()
 ```
 
 ### Sample Queries
@@ -187,6 +479,13 @@ CLUSTER BY category, severity, repository;
 ```sql
 SELECT 
   week,
+  AVG(adoption_rate) as avg_adoption_rate,
+  SUM(total_prs) as total_prs,
+  SUM(prs_with_copilot_review) as reviewed_prs
+FROM weekly_metrics
+WHERE week >= '2025-W01'
+GROUP BY week
+ORDER BY week;
   AVG(adoption_rate) as avg_adoption_rate,
   SUM(total_prs) as total_prs,
   SUM(prs_with_copilot_review) as reviewed_prs
