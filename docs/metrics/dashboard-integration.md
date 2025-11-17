@@ -8,12 +8,16 @@ This document outlines future integration points for visualizing metrics from th
 
 1. [Overview](#overview)
 2. [Integration Architecture](#integration-architecture)
-3. [BigQuery Integration](#bigquery-integration)
-4. [Grafana Dashboard](#grafana-dashboard)
-5. [Looker / Data Studio](#looker--data-studio)
-6. [GitHub Actions Automation](#github-actions-automation)
-7. [Alerting and Notifications](#alerting-and-notifications)
-8. [Implementation Roadmap](#implementation-roadmap)
+3. [Data Storage Options](#data-storage-options)
+4. [PostgreSQL Database Setup](#postgresql-database-setup)
+5. [Data Ingestion Methods](#data-ingestion-methods)
+6. [Grafana Dashboard](#grafana-dashboard)
+7. [Alternative BI Tools](#alternative-bi-tools)
+8. [GitHub Actions Automation](#github-actions-automation)
+9. [Alerting and Notifications](#alerting-and-notifications)
+10. [Implementation Roadmap](#implementation-roadmap)
+11. [Cost Estimates](#cost-estimates)
+12. [Resources](#resources)
 
 ---
 
@@ -536,62 +540,240 @@ ORDER BY month;
 
 ### Data Ingestion
 
-**Option 1: Cloud Function triggered by GitHub webhook**
-```python
-# cloud_function.py
-import json
-from google.cloud import bigquery
+**Option 1: GitHub Webhook with PostgreSQL**
 
-def ingest_pr_review(request):
-    """Parse GitHub PR comment and insert into BigQuery"""
+Create a simple webhook receiver that inserts data into PostgreSQL:
+
+```python
+# webhook_receiver.py
+from flask import Flask, request, jsonify
+import psycopg2
+from datetime import datetime
+import json
+
+app = Flask(__name__)
+
+# Database connection
+def get_db_connection():
+    return psycopg2.connect(
+        host="localhost",
+        database="copilot_metrics",
+        user="your_user",
+        password="your_password"
+    )
+
+@app.route('/webhook/pr-review', methods=['POST'])
+def ingest_pr_review():
+    """Parse GitHub PR comment and insert into PostgreSQL"""
     payload = request.get_json()
     
     if payload.get('action') != 'created':
-        return {'status': 'ignored'}
+        return jsonify({'status': 'ignored'})
     
     # Parse Copilot review comment
     comment = payload.get('comment', {}).get('body', '')
     if 'GitHub Copilot' not in comment:
-        return {'status': 'not_copilot_review'}
+        return jsonify({'status': 'not_copilot_review'})
     
     # Extract structured data from comment
     review_data = parse_copilot_comment(comment, payload)
     
-    # Insert into BigQuery
-    client = bigquery.Client()
-    table = client.get_table('copilot_metrics.pr_reviews')
-    errors = client.insert_rows_json(table, [review_data])
+    # Insert into PostgreSQL
+    conn = get_db_connection()
+    cursor = conn.cursor()
     
-    if errors:
-        return {'status': 'error', 'errors': errors}
-    
-    return {'status': 'success'}
+    try:
+        cursor.execute("""
+            INSERT INTO pr_reviews (
+                pr_number, repository, review_date, pr_title, pr_author,
+                lines_changed, files_changed, total_findings,
+                blocking_findings, important_findings, suggestion_findings
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (pr_number, repository) DO UPDATE SET
+                total_findings = EXCLUDED.total_findings,
+                blocking_findings = EXCLUDED.blocking_findings,
+                important_findings = EXCLUDED.important_findings,
+                suggestion_findings = EXCLUDED.suggestion_findings
+        """, (
+            review_data['pr_number'],
+            review_data['repository'],
+            review_data['review_date'],
+            review_data['pr_title'],
+            review_data['pr_author'],
+            review_data['lines_changed'],
+            review_data['files_changed'],
+            review_data['total_findings'],
+            review_data['blocking_findings'],
+            review_data['important_findings'],
+            review_data['suggestion_findings']
+        ))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+def parse_copilot_comment(comment, payload):
+    """Parse Copilot review comment and extract metrics"""
+    # Implementation to parse comment and extract structured data
+    return {
+        'pr_number': payload['issue']['number'],
+        'repository': payload['repository']['full_name'],
+        'review_date': datetime.now(),
+        'pr_title': payload['issue']['title'],
+        'pr_author': payload['issue']['user']['login'],
+        'lines_changed': 0,  # Parse from PR details
+        'files_changed': 0,   # Parse from PR details
+        'total_findings': 0,  # Parse from comment
+        'blocking_findings': 0,
+        'important_findings': 0,
+        'suggestion_findings': 0
+    }
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+```
+
+**Deploy webhook:**
+```bash
+# Install dependencies
+pip install flask psycopg2-binary
+
+# Run with gunicorn for production
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 webhook_receiver:app
+
+# Or deploy to cloud (AWS Lambda, Azure Functions, Google Cloud Run)
 ```
 
 **Option 2: GitHub Actions scheduled job**
+
+Collect metrics weekly and insert into PostgreSQL:
+
 ```yaml
 # .github/workflows/collect-metrics.yml
 name: Collect Weekly Metrics
 on:
   schedule:
     - cron: '0 0 * * 0'  # Every Sunday at midnight
+  workflow_dispatch:      # Manual trigger
 
 jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch PRs from last week
-        run: |
-          gh pr list --state closed --limit 100 --json number,title,createdAt
+      - name: Checkout repository
+        uses: actions/checkout@v3
       
-      - name: Parse Copilot reviews
-        run: python scripts/parse_reviews.py
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
       
-      - name: Upload to BigQuery
+      - name: Install dependencies
         run: |
-          bq load --source_format=NEWLINE_DELIMITED_JSON \
-            copilot_metrics.weekly_metrics \
-            metrics/weekly-$(date +%Y-W%V).json
+          pip install PyGithub psycopg2-binary jsonschema
+      
+      - name: Fetch PRs and collect metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/collect_weekly_metrics.py
+      
+      - name: Insert into PostgreSQL
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          python scripts/upload_to_postgres.py \
+            --data-file metrics/weekly-$(date +%Y-W%V).json \
+            --week $(date +%Y-W%V)
+```
+
+**Upload script example:**
+```python
+# scripts/upload_to_postgres.py
+import psycopg2
+import json
+import argparse
+import os
+
+def upload_weekly_metrics(data_file, week):
+    """Upload weekly metrics JSON to PostgreSQL"""
+    
+    # Read JSON data
+    with open(data_file, 'r') as f:
+        metrics = json.load(f)
+    
+    # Connect to PostgreSQL
+    conn = psycopg2.connect(
+        host=os.environ['DB_HOST'],
+        database=os.environ['DB_NAME'],
+        user=os.environ['DB_USER'],
+        password=os.environ['DB_PASSWORD']
+    )
+    cursor = conn.cursor()
+    
+    try:
+        # Insert weekly summary
+        cursor.execute("""
+            INSERT INTO weekly_metrics (
+                week, repository, team_name, total_prs,
+                prs_with_copilot_review, adoption_rate, total_findings,
+                blocking_findings, important_findings, suggestion_findings,
+                false_positive_count, false_positive_rate, average_findings_per_pr
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (week, repository) DO UPDATE SET
+                total_prs = EXCLUDED.total_prs,
+                prs_with_copilot_review = EXCLUDED.prs_with_copilot_review,
+                adoption_rate = EXCLUDED.adoption_rate,
+                total_findings = EXCLUDED.total_findings,
+                blocking_findings = EXCLUDED.blocking_findings,
+                important_findings = EXCLUDED.important_findings,
+                suggestion_findings = EXCLUDED.suggestion_findings,
+                false_positive_count = EXCLUDED.false_positive_count,
+                false_positive_rate = EXCLUDED.false_positive_rate,
+                average_findings_per_pr = EXCLUDED.average_findings_per_pr
+        """, (
+            metrics['week'],
+            metrics['repository'],
+            metrics.get('teamName'),
+            metrics['totalPRs'],
+            metrics['prsWithCopilotReview'],
+            metrics['adoptionRate'],
+            metrics['summary']['totalFindings'],
+            metrics['summary']['blockingFindings'],
+            metrics['summary']['importantFindings'],
+            metrics['summary']['suggestionFindings'],
+            metrics['falsePositives']['count'],
+            metrics['falsePositives']['rate'],
+            metrics['summary']['averageFindingsPerPR']
+        ))
+        
+        conn.commit()
+        print(f"✓ Successfully uploaded metrics for week {week}")
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"✗ Error uploading metrics: {e}")
+        raise
+    finally:
+        cursor.close()
+        conn.close()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data-file', required=True)
+    parser.add_argument('--week', required=True)
+    args = parser.parse_args()
+    
+    upload_weekly_metrics(args.data_file, args.week)
 ```
 
 ---
@@ -602,47 +784,118 @@ jobs:
 
 - **Real-time monitoring** - Live dashboards for operational metrics
 - **Alerting** - Notify teams when thresholds breached
-- **Flexible** - Supports many data sources (PostgreSQL, BigQuery via plugin)
+- **Flexible** - Native PostgreSQL support, also supports MySQL, SQLite, MongoDB
 - **Open source** - Free and extensible
+- **Easy setup** - Docker image available
+
+### Setup Grafana with PostgreSQL
+
+**1. Run Grafana with Docker:**
+```bash
+docker run -d \
+  --name=grafana \
+  -p 3000:3000 \
+  grafana/grafana-oss
+```
+
+**2. Add PostgreSQL data source:**
+- Go to http://localhost:3000 (admin/admin)
+- Configuration → Data Sources → Add data source → PostgreSQL
+- Configure connection:
+  - Host: `localhost:5432` (or your PostgreSQL host)
+  - Database: `copilot_metrics`
+  - User/Password: your credentials
+  - SSL Mode: disable (or configure as needed)
+  - TLS/SSL Mode: require (for production)
+
+**3. Create dashboard panels**
 
 ### Sample Dashboard Panels
 
 **Panel 1: Adoption Rate Trend**
+```sql
+-- PostgreSQL Query
+SELECT 
+  week::text as time,
+  AVG(adoption_rate) as "Adoption Rate (%)"
+FROM weekly_metrics
+WHERE week >= (CURRENT_DATE - INTERVAL '12 weeks')::text
+GROUP BY week
+ORDER BY week;
 ```
-Data source: PostgreSQL or BigQuery
-Query: SELECT week, AVG(adoption_rate) FROM weekly_metrics GROUP BY week
-Visualization: Time series line chart
-Target line: 80% adoption
-```
+- **Visualization**: Time series line chart
+- **Y-axis**: 0-100%
+- **Target line**: 80% adoption (threshold marker)
+- **Color**: Green if > 80%, Yellow if 60-80%, Red if < 60%
 
 **Panel 2: Findings by Severity**
+```sql
+-- PostgreSQL Query
+SELECT 
+  severity,
+  COUNT(*) as count
+FROM findings
+WHERE review_date > CURRENT_DATE - INTERVAL '30 days'
+GROUP BY severity
+ORDER BY 
+  CASE severity
+    WHEN 'blocking' THEN 1
+    WHEN 'important' THEN 2
+    WHEN 'suggestion' THEN 3
+  END;
 ```
-Query: SELECT severity, COUNT(*) FROM findings WHERE date > now() - interval '30 days' GROUP BY severity
-Visualization: Pie chart
-Colors: Blocking=red, Important=orange, Suggestion=blue
-```
+- **Visualization**: Pie chart
+- **Colors**: Blocking=red (#E02424), Important=orange (#FF9500), Suggestion=blue (#3B82F6)
 
-**Panel 3: False Positive Rate**
+**Panel 3: False Positive Rate by Repository**
+```sql
+-- PostgreSQL Query
+SELECT 
+  repository,
+  false_positive_rate as "False Positive Rate (%)"
+FROM weekly_metrics
+WHERE week = (
+  SELECT MAX(week) FROM weekly_metrics
+)
+ORDER BY false_positive_rate DESC;
 ```
-Query: SELECT repository, false_positive_rate FROM weekly_metrics WHERE week = current_week
-Visualization: Bar gauge
-Thresholds: Green < 5%, Yellow 5-10%, Red > 10%
-```
+- **Visualization**: Bar gauge
+- **Thresholds**: Green < 5%, Yellow 5-10%, Red > 10%
+- **Unit**: Percent (0-100)
 
 **Panel 4: Time Savings**
+```sql
+-- PostgreSQL Query
+SELECT 
+  DATE_TRUNC('week', review_date)::date as time,
+  SUM(time_saved) / 60.0 as "Hours Saved"
+FROM pr_reviews
+WHERE review_date > CURRENT_DATE - INTERVAL '12 weeks'
+GROUP BY DATE_TRUNC('week', review_date)
+ORDER BY time;
 ```
-Query: SELECT DATE_TRUNC('week', review_date), SUM(time_saved)/60 FROM pr_reviews GROUP BY 1
-Visualization: Bar chart
-Unit: Hours
-```
+- **Visualization**: Bar chart
+- **Unit**: Hours
+- **Color**: Gradient (light to dark green)
 
 **Panel 5: Top Issue Categories (Last 30 Days)**
+```sql
+-- PostgreSQL Query
+SELECT 
+  category,
+  COUNT(*) as count
+FROM findings
+WHERE review_date > CURRENT_DATE - INTERVAL '30 days'
+GROUP BY category
+ORDER BY count DESC
+LIMIT 10;
 ```
-Query: SELECT category, COUNT(*) FROM findings WHERE date > now() - 30 GROUP BY category ORDER BY count DESC LIMIT 10
-Visualization: Horizontal bar chart
-```
+- **Visualization**: Horizontal bar chart
+- **Sort**: Descending by count
 
 ### Alert Rules
+
+Configure Grafana alerts to notify when metrics exceed thresholds:
 
 **Alert 1: Low Adoption Rate**
 ```yaml
@@ -676,15 +929,19 @@ annotations:
 
 ### Implementation Steps
 
-1. Install Grafana (or use Grafana Cloud)
-2. Add data source (PostgreSQL or BigQuery)
+1. Install Grafana (Docker or Grafana Cloud)
+2. Add PostgreSQL data source
 3. Import dashboard template (create from panels above)
-4. Configure alert notification channels (Slack, email, PagerDuty)
+4. Configure alert notification channels (email, webhooks)
 5. Share dashboard link with team
 
 ---
 
-## Looker / Data Studio
+## Alternative BI Tools
+
+### Looker / Data Studio (Google Cloud)
+
+**Note:** Requires Google Cloud Platform access
 
 ### Why Looker/Data Studio?
 
@@ -713,9 +970,29 @@ annotations:
 - Common issues for this team
 - Improvement recommendations
 
-### Data Studio Dashboard Configuration
+### Alternative: Metabase (Open Source BI Tool)
 
-**Data source**: BigQuery connector
+**Why Metabase?**
+- ✅ **Free and open source**
+- ✅ **Easy setup** - Docker image available
+- ✅ **Native PostgreSQL support**
+- ✅ **User-friendly** - No SQL required for basic dashboards
+- ✅ **Sharing** - Email scheduled reports, public dashboards
+
+**Setup:**
+```bash
+# Run Metabase with Docker
+docker run -d -p 3000:3000 \
+  -e "MB_DB_TYPE=postgres" \
+  -e "MB_DB_DBNAME=copilot_metrics" \
+  -e "MB_DB_PORT=5432" \
+  -e "MB_DB_USER=your_user" \
+  -e "MB_DB_PASS=your_password" \
+  -e "MB_DB_HOST=localhost" \
+  --name metabase metabase/metabase
+```
+
+**Dashboard Examples:**
 
 **Scorecard 1: Adoption Rate**
 ```
@@ -783,7 +1060,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install PyGithub google-cloud-bigquery jsonschema
+          pip install PyGithub psycopg2-binary jsonschema
       
       - name: Fetch closed PRs from last week
         env:
@@ -806,15 +1083,16 @@ jobs:
             --input data/reviews.json \
             --schema schemas/pr-review-schema.json
       
-      - name: Upload to BigQuery
+      - name: Upload to PostgreSQL
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          python scripts/upload_to_bigquery.py \
+          python scripts/upload_to_postgres.py \
             --input data/reviews.json \
-            --project copilot-metrics \
-            --dataset copilot_metrics \
-            --table pr_reviews
+            --week $(date +%Y-W%V)
       
       - name: Generate weekly report
         run: |
@@ -822,9 +1100,9 @@ jobs:
             --week $(date +%Y-W%V) \
             --output reports/weekly-report.md
       
-      - name: Post report to Slack
+      - name: Post report (optional)
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          NOTIFICATION_WEBHOOK: ${{ secrets.NOTIFICATION_WEBHOOK }}
         run: |
           curl -X POST $SLACK_WEBHOOK \
             -H 'Content-Type: application/json' \
@@ -965,15 +1243,15 @@ if __name__ == '__main__':
 ## Implementation Roadmap
 
 ### Phase 1: Foundation (Weeks 1-4)
-- [ ] Set up BigQuery project and tables
+- [ ] Set up PostgreSQL database and tables (or SQLite for quickstart)
 - [ ] Create GitHub Actions workflow for data collection
 - [ ] Implement parser script for PR comments
 - [ ] Test end-to-end data flow with sample data
 
 ### Phase 2: Dashboards (Weeks 5-8)
 - [ ] Build Grafana dashboard with key panels
-- [ ] Configure alerting rules and Slack notifications
-- [ ] Create Looker/Data Studio executive report
+- [ ] Configure alerting rules and notifications
+- [ ] Create Metabase/Superset executive report (if needed)
 - [ ] Share dashboard URLs with stakeholders
 
 ### Phase 3: Automation (Weeks 9-12)
@@ -992,21 +1270,34 @@ if __name__ == '__main__':
 
 ## Cost Estimates
 
-### BigQuery (Google Cloud)
-- **Storage**: ~1 GB/year = $0.02/month
-- **Queries**: ~10 queries/day * 1 GB scanned = $0.15/month
-- **Total**: ~$2/month
+### PostgreSQL (Self-Hosted or Cloud)
+- **Self-hosted**: $0 (using existing infrastructure)
+- **DigitalOcean Managed**: $15/month (1 GB RAM, 10 GB storage)
+- **AWS RDS**: ~$13/month (db.t3.micro with 20 GB storage)
+- **Azure Database**: ~$5/month (Basic tier with 5 GB storage)
 
-### Grafana Cloud (Free tier)
-- 10,000 series, 14-day retention
-- **Cost**: $0 (or $49/month for Pro)
+### SQLite (File-Based)
+- **Cost**: $0 (local file storage)
+- **Limitations**: Single-writer, not for distributed systems
+
+### Grafana
+- **Self-hosted**: $0 (Docker/Kubernetes deployment)
+- **Grafana Cloud**: $0 (free tier: 10,000 series, 14-day retention)
+- **Grafana Cloud Pro**: $49/month (unlimited series, 13-month retention)
+
+### Metabase (Open Source Alternative)
+- **Self-hosted**: $0 (Docker deployment)
+- **Metabase Cloud**: Starting at $85/month
 
 ### GitHub Actions
 - 2,000 minutes/month free for private repos
 - Metrics collection: ~10 min/week = 40 min/month
 - **Cost**: $0
 
-**Total estimated cost**: ~$2-50/month depending on tooling choices
+**Total estimated cost**: $0-65/month depending on tooling choices
+- **Minimum setup** (SQLite + self-hosted Grafana + GitHub Actions): **$0**
+- **Recommended setup** (Managed PostgreSQL + Grafana Cloud free): **$0-15/month**
+- **Enterprise setup** (Managed PostgreSQL + Grafana Cloud Pro): **~$64/month**
 
 ---
 
@@ -1021,11 +1312,30 @@ if __name__ == '__main__':
 
 ## Resources
 
-- [BigQuery Documentation](https://cloud.google.com/bigquery/docs)
+### Database & Storage
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [PostgreSQL with Docker](https://hub.docker.com/_/postgres)
+- [SQLite Documentation](https://www.sqlite.org/docs.html)
+- [psycopg2 Python Library](https://www.psycopg.org/docs/)
+
+### Visualization Tools
+- [Grafana Documentation](https://grafana.com/docs/grafana/latest/)
 - [Grafana Dashboard Best Practices](https://grafana.com/docs/grafana/latest/dashboards/)
+- [Metabase Documentation](https://www.metabase.com/docs/latest/)
+- [Apache Superset Documentation](https://superset.apache.org/docs/intro)
+
+### Automation
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Flask Documentation](https://flask.palletsprojects.com/)
+
+### For Large Scale / Google Cloud Users
+- [BigQuery Documentation](https://cloud.google.com/bigquery/docs)
+- [Looker/Data Studio](https://cloud.google.com/looker)
+
+### Project Documentation
 - [Data Structure Specification](data-structure.md)
 - [Tracking Guide](tracking-guide.md)
+- [Feedback Collection](feedback-collection.md)
 
 ---
 
