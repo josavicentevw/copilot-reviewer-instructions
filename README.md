@@ -22,10 +22,12 @@ A comprehensive, customizable system for automated pull request reviews using Gi
 This system provides:
 
 - 🎯 **Standardized review criteria** across security, testing, performance, reliability, observability, and code quality
-- 🔧 **Technology-specific rules** for Kotlin, React/TypeScript (extensible to other stacks)
+- 🔧 **Technology-specific rules** for Kotlin, Java, Python, Go, Scala, React/TypeScript, and Angular
 - 🎨 **Customizable templates** for teams to adapt to their specific needs
 - ✅ **Comprehensive checklists** covering all critical aspects of code review
 - 📢 **Consistent feedback format** with clear severity levels and actionable recommendations
+
+> **Note:** GitHub Copilot Review uses its own output format. These instructions guide **what to look for** and **how to prioritize findings**, not how to format the output.
 
 ### 🌟 Key Benefits
 
@@ -54,9 +56,18 @@ Six specialized checklists covering critical review areas:
 
 Stack-specific validation rules for:
 
+**Backend Languages:**
 - ☕ **[Kotlin/Java](docs/stack-rules/java-kotlin-rules.md)** - Null safety, data classes, repository patterns, DI, exception handling
+- ☕ **[Java](docs/stack-rules/java-rules.md)** - Optional, Streams, JPA/Hibernate, Spring DI, SLF4J logging
+- 🐍 **[Python](docs/stack-rules/python-rules.md)** - Type hints, Pydantic, SQLAlchemy, async/await, pytest
+- 🐹 **[Go](docs/stack-rules/go-rules.md)** - Error handling, context, goroutines, interfaces, database patterns
+- 🔷 **[Scala](docs/stack-rules/scala-rules.md)** - Option types, case classes, sealed traits, Either/Try, Futures
+
+**Frontend Frameworks:**
 - ⚛️ **[React/TypeScript](docs/stack-rules/react-typescript-rules.md)** - TypeScript strict mode, React hooks, component patterns, HTTP clients
-- 🔌 **[Extensibility Guide](docs/stack-rules/README.md)** - Add support for Python, Go, Swift, and other technologies
+- 🅰️ **[Angular](docs/stack-rules/angular-rules.md)** - Components, RxJS, DI, reactive forms, NgRx, performance
+
+- 🔌 **[Extensibility Guide](docs/stack-rules/README.md)** - Add support for additional technologies
 
 ### 📝 Customizable Templates
 
@@ -145,10 +156,10 @@ For comprehensive contribution guidelines, please read **[CONTRIBUTING.md](CONTR
 
 ### 💪 Areas We'd Love Help With
 
-- 🐍 **New stack rules**: Python, Go, Swift, Ruby, Rust
+- 🐍 **New stack rules**: Swift, Ruby, Rust, C#/.NET, PHP
 - 📝 **Improved examples**: More real-world scenarios
 - 🌐 **Translations**: While source stays in English, translations help adoption
-- 📊 **Metrics and case studies**: Share your team's results and ROI
+- 📊 **Case studies**: Share your team's results and ROI
 
 ---
 
