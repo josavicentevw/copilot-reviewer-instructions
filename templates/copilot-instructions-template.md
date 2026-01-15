@@ -5,7 +5,10 @@
   This template is designed to be copied to your repository's .github/copilot-instructions.md
   
   Sections marked with [CUSTOMIZABLE] can be modified to fit your team's needs.
-  Sections marked with [RECOMMENDED - DO NOT CHANGE] should remain as-is for consistency.
+  Sections marked with [RECOMMENDED] contain best practices that should generally remain as-is.
+  
+  IMPORTANT: GitHub Copilot Review uses its own output format. These instructions guide 
+  WHAT to look for and HOW to prioritize findings, not how to format the output.
   
   See templates/team-customization-guide.md for detailed instructions.
 -->
@@ -14,127 +17,59 @@
 
 ## 1. Purpose and Scope
 
-<!-- [RECOMMENDED - DO NOT CHANGE] -->
-<!-- This section defines the fundamental purpose of code reviews -->
+<!-- [RECOMMENDED] -->
 
 These instructions define how GitHub Copilot should review Pull Requests in this repository. The goal is to provide consistent, actionable feedback that prioritizes critical aspects while minimizing noise from non-essential changes.
 
 **Scope:**
 - Focus on code quality, security, performance, and reliability
 - Provide constructive feedback with clear corrective actions
-- Reference detailed checklists for comprehensive validation
 - Adapt feedback based on the type and scope of changes
 
----
-
-## 2. Response Style
-
-<!-- [CUSTOMIZABLE - Language] -->
-<!-- Change language/locale if your team works in a different language -->
-
-### Language and Tone
-- **Language:** Respond in English (en-US)  <!-- CUSTOMIZE: Change to your team's language -->
-- **Tone:** Professional, concise, and constructive
-- **Format:** Use bullet points for clarity
-
-### Severity Levels
-
-<!-- [CUSTOMIZABLE - Severity Definitions] -->
-<!-- Adjust severity thresholds based on your team's risk tolerance -->
-
-Reviews must classify findings using these severity levels:
-
-- **Blocking:**
-  - Security vulnerabilities (credential exposure, SQL injection, XSS)
-  - Breaking changes without migration path
-  - High risk of service outage or data loss
-  - Critical compliance violations
-  <!-- CUSTOMIZE: Add team-specific blocking criteria here -->
-  
-- **Important:**
-  - Medium impact on reliability or performance
-  - Missing tests for critical functionality
-  - Code quality issues affecting maintainability
-  - Observable degradation in user experience
-  <!-- CUSTOMIZE: Add team-specific important criteria here -->
-  
-- **Suggestion:**
-  - Non-critical improvements
-  - Style and formatting recommendations
-  - Refactoring opportunities
-  - Documentation enhancements
-  <!-- CUSTOMIZE: Add team-specific suggestion criteria here -->
+> **Note:** GitHub Copilot Review uses its own output format. These instructions guide **what to look for** and **how to prioritize findings**, not how to format the output.
 
 ---
 
-## 3. Output Format
+## 2. Severity Classification
 
-<!-- [RECOMMENDED - DO NOT CHANGE] -->
-<!-- Standard format ensures consistency across all reviews -->
+<!-- [CUSTOMIZABLE - Adjust severity thresholds based on your team's risk tolerance] -->
 
-All reviews must follow this standardized structure:
+When reviewing code, classify findings by severity to help developers prioritize fixes:
 
-### Review Template
+### Blocking Issues (Must Fix)
+Flag these as critical issues that should block the PR:
+- Security vulnerabilities (credential exposure, SQL injection, XSS)
+- Breaking changes without migration path
+- High risk of service outage or data loss
+- Critical compliance violations
+- Null pointer exceptions in critical paths
+- Missing authentication/authorization checks
+<!-- CUSTOMIZE: Add team-specific blocking criteria here -->
 
-```markdown
-**Summary**
-- [Brief description of PR scope - 1 line]
-- [Main risks or concerns - 1-2 points]
-- [Overall status: OK with observations | Requires changes | Blocking]
+### Important Issues (Should Fix)
+Flag these as significant issues requiring attention:
+- Medium impact on reliability or performance
+- Missing tests for critical functionality
+- Code quality issues affecting maintainability
+- Observable degradation in user experience
+- Missing error handling for external calls
+- N+1 query patterns
+<!-- CUSTOMIZE: Add team-specific important criteria here -->
 
-**Findings**
-- **[Severity] [Area]**: [Brief description]
-  **Evidence:** [file:line or diff reference]
-  **Proposed fix:** [Specific action or code snippet]
-  **Reference:** [`docs/review/...-checklist.md#section`]
-
-**Quick Checklist**
-- Security: ✓/✗
-- Tests: ✓/✗
-- Performance/Cost: ✓/✗
-- Reliability: ✓/✗
-- Observability: ✓/✗
-- Readability/DX: ✓/✗
-- Code Conventions: ✓/✗
-```
-
-### Example Output
-
-**Good feedback example:**
-
-```markdown
-**Summary**
-- Adds JWT authentication endpoint
-- Risk: credentials in logs, missing rate limiting
-- Status: Requires changes
-
-**Findings**
-- **Blocking | Security**: Database credentials in configuration file
-  **Evidence:** `src/config/database.ts:15`
-  **Proposed fix:** Move credentials to AWS Secrets Manager and load via environment variable `DB_SECRET_ARN`
-  **Reference:** [`docs/review/security-checklist.md#secrets-management`]
-
-- **Important | Reliability**: Endpoint without rate limiting
-  **Evidence:** `src/routes/auth.ts:23-45`
-  **Proposed fix:** Implement rate limiting with express-rate-limit (max 5 attempts per minute)
-  **Reference:** [`docs/review/reliability-checklist.md#rate-limiting`]
-
-**Quick Checklist**
-- Security: ✗ (credentials exposed)
-- Tests: ✓
-- Performance/Cost: ✓
-- Reliability: ✗ (no rate limiting)
-- Observability: ✓
-- Readability/DX: ✓
-- Code Conventions: ✓
-```
+### Suggestions (Consider Fixing)
+Flag these as improvements to consider:
+- Non-critical code quality improvements
+- Refactoring opportunities
+- Documentation enhancements
+- Minor performance optimizations
+- Code style recommendations
+<!-- CUSTOMIZE: Add team-specific suggestion criteria here -->
 
 ---
 
-## 4. Review Priorities (In Order)
+## 3. Review Priorities (In Order)
 
-<!-- [CUSTOMIZABLE - Priority Order] -->
-<!-- Reorder these priorities to match your team's focus areas -->
+<!-- [CUSTOMIZABLE - Reorder these priorities to match your team's focus areas] -->
 
 Review changes in this priority order:
 
@@ -153,25 +88,23 @@ Example additions:
 
 ---
 
-## 5. Cross-Cutting Rules
+## 4. Security Review Guidelines
 
-<!-- [RECOMMENDED - DO NOT CHANGE CORE RULES] -->
-<!-- These are fundamental best practices; customize only the specifics -->
+<!-- [RECOMMENDED - Core security rules] -->
 
-### Security
-Apply validation rules from [`docs/review/security-checklist.md`](../docs/review/security-checklist.md):
+Reference: [`docs/review/security-checklist.md`](../docs/review/security-checklist.md)
 
-- **No secrets in code:** Check for hardcoded credentials, API keys, tokens
-  - Require use of Key Vault, AWS Secrets Manager, or environment variables
-- **Input/Output validation:** Verify sanitization and escaping
-  - Prevent XSS, SQL injection, NoSQL injection, SSRF attacks
-- **Authentication & Authorization:** Validate token management
-  - Check expiration, rotation, minimal scopes
-  - Verify proper authentication flows
-- **Dependency vulnerabilities:** Flag libraries with known CVEs
-  - Suggest specific safe versions
-- **Encryption:** Ensure TLS for transit, encryption at rest where applicable
-- **PII/Secret masking:** Verify sensitive data is masked in logs and traces
+**Always check for:**
+
+- **Hardcoded secrets:** API keys, passwords, tokens, credentials in code
+  - Should use Key Vault, AWS Secrets Manager, or environment variables
+- **SQL/NoSQL injection:** String concatenation in queries instead of parameterized queries
+- **XSS vulnerabilities:** Unsanitized user input rendered in HTML
+- **SSRF vulnerabilities:** User-controlled URLs in server-side requests
+- **Missing authentication:** Endpoints without proper auth checks
+- **Missing authorization:** Actions without permission verification
+- **Insecure dependencies:** Libraries with known CVEs
+- **PII in logs:** Sensitive data (emails, SSN, credit cards) logged without masking
 
 <!-- CUSTOMIZE: Add team-specific security requirements
 Example:
@@ -179,13 +112,105 @@ Example:
 - **Secret rotation:** Maximum age for secrets (e.g., 90 days)
 -->
 
-### Testing
-Apply requirements from [`docs/review/testing-checklist.md`](../docs/review/testing-checklist.md):
+**Example issues to flag:**
+```
+// BAD: Hardcoded credentials
+const dbPassword = "secret123";
 
-- **Unit tests required:** For new logic and critical paths
-- **Contract/API tests:** When schemas or public APIs change
-- **Test data quality:** Realistic scenarios without real PII
-- **Coverage rationale:** Explain if tests are not applicable
+// BAD: SQL injection
+const query = `SELECT * FROM users WHERE id = '${userId}'`;
+
+// BAD: PII in logs
+console.log(`User logged in: ${user.email}, SSN: ${user.ssn}`);
+```
+
+---
+
+## 5. Reliability Review Guidelines
+
+<!-- [RECOMMENDED - Core reliability rules] -->
+
+Reference: [`docs/review/reliability-checklist.md`](../docs/review/reliability-checklist.md)
+
+**Always check for:**
+
+- **Missing timeouts:** HTTP calls, database queries without timeout configuration
+- **Missing error handling:** Try-catch blocks that swallow exceptions silently
+- **No retry logic:** External calls without retry with exponential backoff
+- **No circuit breakers:** Critical external dependencies without circuit breaker pattern
+- **Non-idempotent operations:** Operations with side effects that aren't idempotent
+- **Missing rate limiting:** Public endpoints without rate limiting protection
+
+**Example issues to flag:**
+```
+// BAD: No timeout
+const response = await fetch(url);
+
+// BAD: Swallowing exception
+try {
+  await processPayment(order);
+} catch (e) {
+  // Silent failure
+}
+
+// BAD: No retry logic for external call
+const result = await externalApi.call(data);
+```
+
+---
+
+## 6. Performance Review Guidelines
+
+<!-- [RECOMMENDED - Core performance rules] -->
+
+Reference: [`docs/review/performance-checklist.md`](../docs/review/performance-checklist.md)
+
+**Always check for:**
+
+- **N+1 queries:** Loops that execute database queries
+- **Missing indexes:** Queries filtering on columns without indexes
+- **Missing pagination:** Endpoints returning unbounded result sets
+- **No caching:** Frequently accessed data without caching strategy
+- **O(n²) algorithms:** Nested loops that could be optimized
+- **Large payload responses:** APIs returning more data than needed
+- **Missing connection pooling:** Database connections created per request
+
+<!-- CUSTOMIZE: Add team-specific performance requirements
+Example:
+- **Response time SLA:** API endpoints must respond in <200ms (p95)
+- **Bundle size:** Frontend bundles must be <500KB gzipped
+-->
+
+**Example issues to flag:**
+```
+// BAD: N+1 query
+for (const user of users) {
+  user.orders = await db.orders.findByUserId(user.id);
+}
+
+// BAD: No pagination
+app.get('/users', async (req, res) => {
+  const users = await db.users.findAll(); // Could return millions
+  res.json(users);
+});
+```
+
+---
+
+## 7. Testing Review Guidelines
+
+<!-- [RECOMMENDED - Core testing rules] -->
+
+Reference: [`docs/review/testing-checklist.md`](../docs/review/testing-checklist.md)
+
+**Always check for:**
+
+- **Missing unit tests:** New logic without corresponding tests
+- **Missing edge case tests:** Only happy path tested
+- **Missing error case tests:** Exception paths not tested
+- **Real PII in tests:** Production data or real personal information in test files
+- **Flaky tests:** Tests with race conditions or external dependencies
+- **Low test quality:** Tests that don't actually verify behavior
 
 <!-- CUSTOMIZE: Add team-specific testing requirements
 Example:
@@ -194,30 +219,60 @@ Example:
 - **Performance tests:** Required for endpoints handling >1000 req/min
 -->
 
-### Performance/Cost
-Apply optimization rules from [`docs/review/performance-checklist.md`](../docs/review/performance-checklist.md):
+**Example issues to flag:**
+```
+// BAD: Test with real PII
+const testUser = {
+  email: "john.doe@company.com",
+  ssn: "123-45-6789"
+};
 
-- **Avoid N+1 queries:** Require proper joins or batching
-- **Database indexes:** Verify indexes exist for filtered/sorted columns
-- **Pagination/Streaming:** For responses with potentially large datasets
-- **Caching strategy:** Define TTL and explicit invalidation
-- **Algorithmic complexity:** Avoid unnecessary O(n²) operations
+// BAD: Test without assertion
+it('should process order', async () => {
+  await processOrder(order);
+  // No assertions!
+});
+```
 
-<!-- CUSTOMIZE: Add team-specific performance requirements
-Example:
-- **Response time SLA:** API endpoints must respond in <200ms (p95)
-- **Bundle size:** Frontend bundles must be <500KB gzipped
--->
+---
 
-### Reliability
-Apply resilience patterns from [`docs/review/reliability-checklist.md`](../docs/review/reliability-checklist.md):
+## 8. Code Quality Review Guidelines
 
-- **Timeouts:** All external calls must have timeouts
-- **Retries with backoff:** Implement exponential backoff for transient failures
-- **Circuit breakers:** For critical external dependencies
-- **Idempotency:** Operations with side effects must be idempotent
+<!-- [RECOMMENDED - Core code quality rules] -->
 
-### Observability
+Reference: [`docs/review/readability-checklist.md`](../docs/review/readability-checklist.md)
+
+**Always check for:**
+
+- **Nested ternaries:** Complex conditional expressions that should be functions
+- **Magic numbers/strings:** Hardcoded values without named constants
+- **Overly complex functions:** Functions with high cyclomatic complexity
+- **Poor naming:** Unclear variable, function, or class names
+- **Code duplication:** Repeated logic that should be extracted
+- **Missing type annotations:** Dynamic types where static types would help (any in TypeScript)
+
+**Example issues to flag:**
+```
+// BAD: Nested ternary
+const price = tier === 'premium' ? (volume > 100 ? 0.8 : 0.9) : 1.0;
+
+// BAD: Magic numbers
+if (retryCount > 3) { setTimeout(fn, 5000); }
+
+// BAD: Using any
+function processData(data: any): any {
+  return data.value * 2;
+}
+```
+
+---
+
+## 9. Observability Guidelines
+
+<!-- [CUSTOMIZABLE - Add team-specific observability requirements] -->
+
+**Always check for:**
+
 - **Structured logging:** Use structured formats (JSON), appropriate log levels
 - **No PII in logs:** Verify sensitive data is masked
 - **Metrics & traces:** Include relevant attributes and tags
@@ -229,81 +284,90 @@ Example:
 - **SLO tracking:** Track availability, latency, and error rate SLOs
 -->
 
-### Readability & Developer Experience
-Apply standards from [`docs/review/readability-checklist.md`](../docs/review/readability-checklist.md):
-
-- **No nested ternaries:** Extract to named functions
-- **Cyclomatic complexity:** Keep functions focused and testable
-- **Clear naming:** Use expressive, unambiguous names
-- **Purposeful comments:** Only when adding non-obvious context
-- **Type visibility:** Leverage type systems (TypeScript, Kotlin types)
-
-### Code Conventions
-Apply team-specific conventions from [`docs/review/code-conventions.md`](../docs/review/code-conventions.md):
-
-<!-- [HIGHLY CUSTOMIZABLE] -->
-<!-- This section should reference your team's specific coding conventions -->
-
-- **Test builders:** Use builders for complex test objects, one per domain model
-- **Naming conventions:** Document/Response suffixes (e.g., `UserDocument`, `UserResponse`)
-- **SBOM Inventory:** Follow component naming and versioning standards
-
-<!-- CUSTOMIZE: Replace or extend with your team's conventions
-Example:
-- **Error codes:** Use standardized error code format (ERR-{DOMAIN}-{NUMBER})
-- **Feature flags:** Use LaunchDarkly with naming convention {team}-{feature}-{env}
-- **API versioning:** Use URL versioning (v1, v2) not header-based
--->
-
 ---
 
-## 6. Stack-Specific Rules
+## 10. Stack-Specific Guidelines
 
-<!-- [CUSTOMIZABLE - Add/Remove Stacks] -->
-<!-- Add sections for the technology stacks your team uses -->
+<!-- [CUSTOMIZABLE - Add/Remove based on your technology stacks] -->
 
-### Kotlin
+### Kotlin/Java
 Reference: [`docs/stack-rules/java-kotlin-rules.md`](../docs/stack-rules/java-kotlin-rules.md)
 
-- **Null safety:** Use Kotlin's null-safe types, avoid `!!` operator
-- **Data classes:** Use `data class` or `sealed class` appropriately
-- **Repository patterns:** Require parameterized queries, verify indexes
-- **Exception handling:** Use specific exception types, avoid catching generic `Exception`
+- Flag `!!` operator usage in Kotlin without justification
+- Flag `Optional.get()` without `isPresent()` check in Java
+- Require parameterized queries in repositories
+- Flag catching generic `Exception` instead of specific types
+- Require constructor injection over field injection
 
 ### React/TypeScript
 Reference: [`docs/stack-rules/react-typescript-rules.md`](../docs/stack-rules/react-typescript-rules.md)
 
-- **TypeScript strict mode:** Avoid `any` unless justified with comment
-- **React hooks:** Follow hooks rules, proper dependency arrays
-- **Component patterns:** Functional components with TypeScript interfaces for props
-- **State management:** Appropriate use of useState, useEffect, and custom hooks
-- **HTTP timeouts:** All HTTP clients must specify timeouts and abort controllers
-- **Error handling:** Use custom error classes, proper error boundaries
+- Flag `any` type usage without justification comment
+- Flag missing dependencies in useEffect/useCallback arrays
+- Flag missing cleanup in useEffect (memory leaks)
+- Require proper TypeScript interfaces for component props
+- Flag HTTP calls without timeout/abort controller
+
+### Python
+Reference: [`docs/stack-rules/python-rules.md`](../docs/stack-rules/python-rules.md)
+
+- Require type hints for function signatures
+- Flag bare `except:` clauses
+- Require context managers for resource management
+- Flag string formatting in SQL queries (injection risk)
+- Require async/await for I/O-bound operations
+
+### Go
+Reference: [`docs/stack-rules/go-rules.md`](../docs/stack-rules/go-rules.md)
+
+- Flag ignored errors (using `_` for error return)
+- Require context.Context as first parameter
+- Flag goroutines without proper synchronization
+- Require `defer rows.Close()` for database queries
+- Flag missing error wrapping with context
+
+### Scala
+Reference: [`docs/stack-rules/scala-rules.md`](../docs/stack-rules/scala-rules.md)
+
+- Flag `Option.get` usage (prefer `getOrElse`, `fold`, `map`)
+- Flag `var` usage (prefer `val` for immutability)
+- Require sealed traits for ADTs
+- Flag mutable collections usage
+- Require proper error handling with Either/Try
+
+### Angular
+Reference: [`docs/stack-rules/angular-rules.md`](../docs/stack-rules/angular-rules.md)
+
+- Require OnPush change detection for performance
+- Flag missing `trackBy` in `*ngFor` loops
+- Require proper unsubscribe patterns for observables
+- Flag manual subscriptions (prefer async pipe)
+- Require typed reactive forms
 
 <!-- CUSTOMIZE: Add your team's technology stacks
-Example for Python/Django:
+Example for Django:
 
-### Python/Django
-Reference: [`docs/stack-rules/python-django-rules.md`](../docs/stack-rules/python-django-rules.md)
+### Django
+Reference: [`docs/stack-rules/django-rules.md`](../docs/stack-rules/django-rules.md)
 
-- **Type hints:** All function signatures must have type hints
-- **Django ORM:** Use select_related/prefetch_related, avoid N+1 queries
-- **Settings:** Never commit secrets to settings.py, use environment variables
+- Use select_related/prefetch_related for querysets
+- Never commit secrets to settings.py
+- Use Django REST Framework serializers properly
 -->
 
 ---
 
-## 7. Exclusions (Reduce Noise)
+## 11. Files to Exclude from Review
 
-<!-- [HIGHLY CUSTOMIZABLE] -->
-<!-- Modify this section based on your build tools and workflow -->
+<!-- [CUSTOMIZABLE - Adjust based on your build tools and workflow] -->
 
-**Ignore by default:**
+**Skip reviewing these files:**
 
-- Generated files: `dist/**`, `build/**`, `*.min.js`, `*.map`, `*-lock.json`
-- Lockfiles: Unless they introduce CVEs or incompatible licenses
-- Non-technical markdown: Except `docs/review/*` and API documentation
-- Auto-formatted code: If only formatting changed
+- Generated files: `dist/**`, `build/**`, `*.min.js`, `*.map`
+- Lock files: `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml` (unless CVE concerns)
+- Auto-generated migrations (unless they modify production data)
+- Third-party vendor code
+- Files with only formatting changes
 
 <!-- CUSTOMIZE: Add your team's exclusion patterns
 Example:
@@ -312,63 +376,46 @@ Example:
 - Build artifacts: `target/**`, `out/**`, `.next/**`
 -->
 
-**Comment only if:**
-- Lockfile changes introduce security vulnerabilities
-- Generated files contain concerning patterns
-- License compatibility issues detected
+**Exception:** Review lock files if they introduce known vulnerabilities or license issues.
 
-<!-- CUSTOMIZE: Add conditions when excluded files should be reviewed
+---
+
+## 12. Code Conventions
+
+<!-- [HIGHLY CUSTOMIZABLE - Replace with your team's conventions] -->
+
+Reference: [`docs/review/code-conventions.md`](../docs/review/code-conventions.md)
+
+**Team-specific conventions to enforce:**
+
+- **Test builders:** Use builders for complex test objects, one per domain model
+- **Naming conventions:** 
+  - Documents: `UserDocument`, `OrderDocument`
+  - Responses: `UserResponse`, `OrderResponse`
+  - Database entities: `UserDB`, `RoleDB`
+- **SBOM Inventory:** Follow component naming: `{microservice}:{version}`
+
+<!-- CUSTOMIZE: Replace with your team's conventions
 Example:
-- Migration files modify production data
-- Generated OpenAPI clients have security implications
+- **Error codes:** Use standardized format (ERR-{DOMAIN}-{NUMBER})
+- **Feature flags:** Use LaunchDarkly with naming convention {team}-{feature}-{env}
+- **API versioning:** Use URL versioning (v1, v2) not header-based
 -->
 
 ---
 
-## 8. Metadata and Governance
+## 13. Governance
 
-<!-- [CUSTOMIZABLE - Team Information] -->
-<!-- Update with your team's information and processes -->
+<!-- [CUSTOMIZABLE - Update with your team's information] -->
 
 **Owners:** VW D:H  <!-- CUSTOMIZE: Change to your team's handle -->
-**Last Updated:** 2025-11-14  <!-- CUSTOMIZE: Update when making changes -->
+**Last Updated:** 2026-01-15  <!-- CUSTOMIZE: Update when making changes -->
 **Review Cadence:** Quarterly or when major patterns change  
 
 **How to Propose Changes:**
-1. Open PR against this repository  <!-- CUSTOMIZE: Change to your team's repo -->
+1. Open PR against this repository
 2. Tag `VW D:H` for review  <!-- CUSTOMIZE: Change to your reviewers -->
 3. Update "Last Updated" date upon merge
-
----
-
-## 9. Example Feedback Scenarios
-
-<!-- [RECOMMENDED - DO NOT CHANGE] -->
-<!-- These examples demonstrate good review feedback -->
-
-### Blocking Example (Security)
-```markdown
-- **Blocking | Security**: Credentials used in `config.ts:42`
-  **Evidence:** `const dbPassword = "hardcoded-password-123"`
-  **Proposed fix:** Move to AWS Secrets Manager and load via environment variable; document required variable `DB_SECRET_ARN` in README
-  **Reference:** [`docs/review/security-checklist.md#secrets-management`]
-```
-
-### Important Example (Performance)
-```markdown
-- **Important | Performance**: Query without index in `OrderRepo.findByStatus`
-  **Evidence:** `SELECT * FROM orders WHERE status = ? ORDER BY created_at`
-  **Proposed fix:** Add composite index on `(status, created_at)` and implement pagination
-  **Reference:** [`docs/review/performance-checklist.md#database-indexes`]
-```
-
-### Suggestion Example (Readability)
-```markdown
-- **Suggestion | DX**: Nested ternary in `pricing.ts:28`
-  **Evidence:** `const price = tier === 'premium' ? (volume > 100 ? 0.8 : 0.9) : 1.0`
-  **Proposed fix:** Extract to function `getPriceTier(tier, volume)` with clear logic
-  **Reference:** [`docs/review/readability-checklist.md#avoid-nested-ternaries`]
-```
 
 ---
 
@@ -377,9 +424,10 @@ Example:
   
   1. Copy this file to .github/copilot-instructions.md in your repository
   2. Remove all <!-- CUSTOMIZE --> comments after making your changes
-  3. Update the "Last Updated" date in section 8
-  4. Test by creating a pull request and verifying Copilot uses your rules
-  5. Iterate based on team feedback
+  3. Remove stack-specific sections that don't apply to your project
+  4. Update the "Last Updated" date in section 13
+  5. Test by creating a pull request and verifying Copilot uses your rules
+  6. Iterate based on team feedback
   
   For detailed customization instructions, see:
   templates/team-customization-guide.md

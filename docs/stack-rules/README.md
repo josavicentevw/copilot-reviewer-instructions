@@ -4,8 +4,18 @@ This directory contains technology stack-specific validation rules that suppleme
 
 ## Available Stack Rules
 
-- **[Java/Kotlin Rules](./java-kotlin-rules.md)**: Null safety, data classes, repository patterns, dependency injection, logging, and exception handling for Kotlin and Java projects.
-- **[React/TypeScript Rules](./react-typescript-rules.md)**: TypeScript strict mode, React hooks, component patterns, state management, and HTTP client requirements for React/TypeScript projects.
+### Backend Languages
+
+- **[Java Rules](./java-rules.md)**: Null safety with Optional, streams and functional programming, JPA/Hibernate best practices, Spring dependency injection, logging, and immutability patterns for Java projects.
+- **[Kotlin Rules](./java-kotlin-rules.md)**: Null safety, data classes, sealed traits, repository patterns, dependency injection, logging, and exception handling for Kotlin projects.
+- **[Python Rules](./python-rules.md)**: Type hints, dataclasses and Pydantic models, error handling, SQLAlchemy/ORM patterns, async/await, dependency injection, and testing with pytest.
+- **[Scala Rules](./scala-rules.md)**: Option types, case classes and sealed traits, for-comprehensions, Either/Try error handling, collections, implicits, and Future patterns.
+- **[Go Rules](./go-rules.md)**: Error handling, context usage, goroutines and concurrency, interfaces, database/SQL patterns, struct design, and testing best practices.
+
+### Frontend Frameworks
+
+- **[React/TypeScript Rules](./react-typescript-rules.md)**: TypeScript strict mode, React hooks, component patterns, state management, HTTP client requirements, and performance optimization for React/TypeScript projects.
+- **[Angular Rules](./angular-rules.md)**: TypeScript strict mode, component architecture, RxJS observables, dependency injection, forms and validation, state management with NgRx, and performance optimization for Angular projects.
 
 ---
 
