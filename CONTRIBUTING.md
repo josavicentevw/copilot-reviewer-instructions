@@ -477,8 +477,7 @@ copilot-reviewer-instructions/
 │   └── copilot-instructions.md
 ├── docs/
 │   ├── review/           # Specialized checklists
-│   ├── stack-rules/      # Technology-specific rules
-│   └── metrics/          # Metrics and tracking
+│   └── stack-rules/      # Technology-specific rules
 ├── templates/            # Customizable templates
 ├── CONTRIBUTING.md       # This file
 ├── README.md            # Main documentation

@@ -63,16 +63,7 @@ Stack-specific validation rules for:
 - 📄 **[Copilot Instructions Template](templates/copilot-instructions-template.md)** - Fully customizable base template
 - 🎨 **[Team Customization Guide](templates/team-customization-guide.md)** - Step-by-step instructions, scenarios, and best practices
 
-### 📊 Metrics and Continuous Improvement
-
-Track effectiveness and continuously improve your review system:
-
-- 📈 **[Metrics Tracking Guide](docs/metrics/tracking-guide.md)** - 3-phase metrics framework (basic → intermediate → advanced)
-- 📊 **[Data Structure Specification](docs/metrics/data-structure.md)** - JSON schemas and examples for metric collection
-- 🖥️ **[Dashboard Integration](docs/metrics/dashboard-integration.md)** - PostgreSQL, SQLite, BigQuery, Grafana setup and automation
-- 💬 **[Feedback Collection Process](docs/metrics/feedback-collection.md)** - Systematic feedback gathering and improvement workflow
-
-### 📋 Structured Feedback Format
+###  Structured Feedback Format
 
 Reviews include:
 - 📝 **Summary** - Overview of changes and main risks
