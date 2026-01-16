@@ -212,57 +212,80 @@ function processData(data: any): any {
 
 ### Kotlin/Java
 Reference: [`docs/stack-rules/java-kotlin-rules.md`](../docs/stack-rules/java-kotlin-rules.md)
+Concise reference: [`Kotlin/Java Cheat Sheet`](../docs/stack-rules/concise/java-kotlin-concise.md)
+Examples: [`Kotlin/Java Examples`](../docs/stack-rules/examples-only/java-kotlin-examples.md)
 
-- Flag `!!` operator usage in Kotlin without justification
-- Flag `Optional.get()` without `isPresent()` check in Java
-- Require parameterized queries in repositories
-- Flag catching generic `Exception` instead of specific types
-- Require constructor injection over field injection
+- Flag Kotlin `!!` operator usage without justification and Java `Optional.get()` without presence checks
+- Require parameterized queries and constructor injection; no catching generic `Exception`
+- Ensure structured concurrency (no `GlobalScope`), lifecycle-aware Flow collection, and dispatcher injection for tests
+- Require MockK/Kotest/coroutine test dispatchers plus verified serialization adapters for DTOs
+- Enforce SLF4J structured logging with PII masking across Kotlin/Java services
+
+### Java
+Reference: [`docs/stack-rules/java-rules.md`](../docs/stack-rules/java-rules.md)
+Concise reference: [`Java Cheat Sheet`](../docs/stack-rules/concise/java-concise.md)
+Examples: [`Java Examples`](../docs/stack-rules/examples-only/java-examples.md)
+
+- Flag misuse of `Optional`, null annotations, or unchecked stream operations
+- Require executor-based concurrency (no ad-hoc threads), CompletableFuture timeouts, and synchronized shared state
+- Demand JUnit 5/Spring slice tests with Testcontainers for data/integration coverage
+- Ensure security best practices: Bean validation, SSRF protections for RestTemplate/WebClient, secrets via configuration properties
+- Verify logging/observability guidelines (MDC, masking) and immutability/records usage
 
 ### React/TypeScript
 Reference: [`docs/stack-rules/react-typescript-rules.md`](../docs/stack-rules/react-typescript-rules.md)
+Concise reference: [`React/TypeScript Cheat Sheet`](../docs/stack-rules/concise/react-typescript-concise.md)
+Examples: [`React/TypeScript Examples`](../docs/stack-rules/examples-only/react-typescript-examples.md)
 
-- Flag `any` type usage without justification comment
-- Flag missing dependencies in useEffect/useCallback arrays
-- Flag missing cleanup in useEffect (memory leaks)
-- Require proper TypeScript interfaces for component props
-- Flag HTTP calls without timeout/abort controller
+- Flag `any` type usage without justification comment and require typed props/interfaces
+- Flag missing dependencies or cleanup in hooks and ensure state management avoids derived state
+- Require HTTP calls to include AbortController/timeout handling and resiliency patterns (error boundaries, Suspense fallbacks, lazy loading)
+- Flag components without accessibility coverage (semantic markup, keyboard/focus management, safe HTML) or missing localization strategy
+- Require behavior-focused testing with React Testing Library/Jest plus mocked HTTP/Storybook/visual coverage for critical UI
 
 ### Python
 Reference: [`docs/stack-rules/python-rules.md`](../docs/stack-rules/python-rules.md)
+Concise reference: [`Python Cheat Sheet`](../docs/stack-rules/concise/python-concise.md)
+Examples: [`Python Examples`](../docs/stack-rules/examples-only/python-examples.md)
 
-- Require type hints for function signatures
-- Flag bare `except:` clauses
-- Require context managers for resource management
-- Flag string formatting in SQL queries (injection risk)
-- Require async/await for I/O-bound operations
+- Require type hints for function signatures and forbid bare `except:`
+- Require context managers for resources and parameterized SQL queries (no string formatting)
+- Ensure async code uses `async/await`, proper timeouts, and pytest async fixtures/property tests
+- Flag missing accessibility/localization in templates (semantic HTML, translation helpers)
+- Enforce security practices: secrets via settings/env, bandit/ruff/mypy in CI, escape user content
 
 ### Go
 Reference: [`docs/stack-rules/go-rules.md`](../docs/stack-rules/go-rules.md)
+Concise reference: [`Go Cheat Sheet`](../docs/stack-rules/concise/go-concise.md)
+Examples: [`Go Examples`](../docs/stack-rules/examples-only/go-examples.md)
 
-- Flag ignored errors (using `_` for error return)
-- Require context.Context as first parameter
-- Flag goroutines without proper synchronization
-- Require `defer rows.Close()` for database queries
-- Flag missing error wrapping with context
+- Flag ignored errors or missing wrapping/context propagation
+- Require `context.Context` as the first parameter and enforce timeout/cancellation on HTTP/DB calls
+- Flag goroutines without synchronization or leaked channels; enforce closing resources (`defer rows.Close()`, `resp.Body.Close()`)
+- Ensure HTTP clients are reused with timeouts, retries/backoff, and `Abort` on cancellation
+- Require structured logging/metrics/tracing plus environment-driven configuration and secrets management
 
 ### Scala
 Reference: [`docs/stack-rules/scala-rules.md`](../docs/stack-rules/scala-rules.md)
+Concise reference: [`Scala Cheat Sheet`](../docs/stack-rules/concise/scala-concise.md)
+Examples: [`Scala Examples`](../docs/stack-rules/examples-only/scala-examples.md)
 
-- Flag `Option.get` usage (prefer `getOrElse`, `fold`, `map`)
-- Flag `var` usage (prefer `val` for immutability)
-- Require sealed traits for ADTs
-- Flag mutable collections usage
-- Require proper error handling with Either/Try
+- Flag `Option.get` usage (prefer `getOrElse`, `fold`, `map`) and mutable vars/collections
+- Require sealed traits for ADTs and Either/Try-based error handling
+- Enforce ScalaTest/MUnit best practices plus property testing (no `Thread.sleep`, use `eventually`)
+- Require effect-system safety (Cats Effect/ZIO Resource/ZManaged, no blocking default pools)
+- Flag fs2/Akka streams without draining/back-pressure or error handling
 
 ### Angular
 Reference: [`docs/stack-rules/angular-rules.md`](../docs/stack-rules/angular-rules.md)
+Concise reference: [`Angular Cheat Sheet`](../docs/stack-rules/concise/angular-concise.md)
+Examples: [`Angular Examples`](../docs/stack-rules/examples-only/angular-examples.md)
 
-- Require OnPush change detection for performance
-- Flag missing `trackBy` in `*ngFor` loops
-- Require proper unsubscribe patterns for observables
-- Flag manual subscriptions (prefer async pipe)
-- Require typed reactive forms
+- Require TypeScript strict mode, OnPush change detection, and `trackBy` in `*ngFor`
+- Require unsubscribe patterns for observables (takeUntil, async pipe) and typed HTTP/forms
+- Flag missing accessibility/i18n coverage (semantic templates, keyboard focus, Angular i18n/RTL support)
+- Require behavior-focused tests (TestBed/Angular Testing Library) with async utilities handled correctly
+- Flag unsafe template patterns (`[innerHTML]` without sanitization, incorrect `DomSanitizer` usage, missing CSP considerations)
 
 ---
 

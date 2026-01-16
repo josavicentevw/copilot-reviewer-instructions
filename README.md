@@ -6,14 +6,14 @@ A comprehensive, customizable system for automated pull request reviews using Gi
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Features](#features)
-3. [Getting Started](#getting-started)
-4. [For Teams](#for-teams)
-5. [Documentation Structure](#documentation-structure)
-6. [Examples](#examples)
-7. [Contributing](#contributing)
-8. [Support](#support)
+1. [Overview](#-overview)
+2. [Features](#-features)
+3. [Getting Started](#-getting-started)
+4. [For Teams](#-for-teams)
+5. [Documentation Structure](#-documentation-structure)
+6. [Examples](#-examples)
+7. [Contributing](#-contributing)
+8. [Support](#-support)
 
 ---
 
@@ -68,6 +68,7 @@ Stack-specific validation rules for:
 - 🅰️ **[Angular](docs/stack-rules/angular-rules.md)** - Components, RxJS, DI, reactive forms, NgRx, performance
 
 - 🔌 **[Extensibility Guide](docs/stack-rules/README.md)** - Add support for additional technologies
+- ⚡ **Quick references** – Each stack now has a condensed [Cheat Sheet](docs/stack-rules/README.md#quick-reference--examples) and an example-only companion (e.g., [React cheat sheet](docs/stack-rules/concise/react-typescript-concise.md) + [examples](docs/stack-rules/examples-only/react-typescript-examples.md))
 
 ### 📝 Customizable Templates
 
@@ -115,6 +116,10 @@ The [Team Customization Guide](templates/team-customization-guide.md) includes d
 ## 📚 Documentation Structure
 
 All documentation is in English and follows a consistent structure.
+
+- **Full guides:** `docs/stack-rules/*.md`
+- **Concise cheat sheets:** `docs/stack-rules/concise/*.md` (quick checklist summaries)
+- **Code-only examples:** `docs/stack-rules/examples-only/*.md` (GOOD/BAD snippets by topic)
 
 ---
 

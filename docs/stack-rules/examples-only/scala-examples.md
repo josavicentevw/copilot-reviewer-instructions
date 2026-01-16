@@ -1,21 +1,7 @@
-# Scala Stack-Specific Rules
-
-This document provides Scala-specific validation rules for code reviews. These rules supplement the general checklists and should be applied when reviewing Scala code.
-
-**Quick resources:** [Cheat Sheet](./concise/scala-concise.md) · [Code Examples](./examples-only/scala-examples.md)
-
----
+# Scala Examples
 
 ## 1. Type Safety and Immutability {#type-safety}
-
-### Option Type Usage
-- [ ] Use `Option[T]` instead of null
-- [ ] Never use `null` in Scala code
-- [ ] Use `Option.get` only when absolutely certain value exists
-- [ ] Prefer `getOrElse`, `fold`, `map`, `flatMap` over `get`
-- [ ] Use pattern matching for Option handling
-
-**Examples:**
+### Example 1
 ```scala
 // ❌ BAD - Using null
 def findUser(id: String): User = {
@@ -64,15 +50,7 @@ def getUserDepartment(id: String): Option[String] = {
   } yield department
 }
 ```
-
-### Immutability
-- [ ] Prefer `val` over `var`
-- [ ] Use immutable collections by default
-- [ ] Use case classes for immutable data structures
-- [ ] Avoid mutable state in functions
-- [ ] Use `copy` method for updates
-
-**Examples:**
+### Example 2
 ```scala
 // ❌ BAD - Using var
 var count = 0
@@ -112,18 +90,8 @@ def processOrders(orders: List[Order]): List[Order] = {
 }
 ```
 
----
-
 ## 2. Case Classes and Sealed Traits {#case-classes}
-
-### Case Class Best Practices
-- [ ] Use case classes for immutable data structures
-- [ ] Keep case classes simple (primarily data holders)
-- [ ] Use companion objects for factory methods
-- [ ] Leverage pattern matching with case classes
-- [ ] Use case objects for singleton values
-
-**Examples:**
+### Example 1
 ```scala
 // ✅ GOOD - Simple case class
 case class UserResponse(
@@ -157,15 +125,7 @@ def processResult(result: Result): String = result match {
   case Loading => "Loading..."
 }
 ```
-
-### Sealed Traits and ADTs
-- [ ] Use sealed traits for representing restricted type hierarchies
-- [ ] Define all implementations in the same file
-- [ ] Leverage exhaustive pattern matching
-- [ ] Use ADTs (Algebraic Data Types) for domain modeling
-- [ ] Prefer sealed traits over enumerations for complex types
-
-**Examples:**
+### Example 2
 ```scala
 // ✅ GOOD - Sealed trait for result types
 sealed trait Result[+T]
@@ -213,18 +173,8 @@ object ApiResponse {
 }
 ```
 
----
-
 ## 3. For-Comprehensions and Monadic Composition {#for-comprehensions}
-
-### For-Comprehension Best Practices
-- [ ] Use for-comprehensions for sequential monadic operations
-- [ ] Keep for-comprehensions readable (not too deeply nested)
-- [ ] Use guards in for-comprehensions for filtering
-- [ ] Understand for-comprehension desugaring
-- [ ] Use appropriate context (Future, Option, Either, etc.)
-
-**Examples:**
+### Example 1
 ```scala
 // ✅ GOOD - For-comprehension with Option
 def getUserDepartment(userId: String): Option[String] = {
@@ -279,18 +229,8 @@ def getUserDataParallel(userId: String): Future[(User, List[Order], Profile)] = 
 }
 ```
 
----
-
 ## 4. Error Handling with Either and Try {#error-handling}
-
-### Either for Error Handling
-- [ ] Use `Either[Error, Success]` for error handling
-- [ ] Keep error types on the left, success on the right
-- [ ] Use custom error types instead of strings
-- [ ] Leverage Either's monadic operations
-- [ ] Use pattern matching for Either
-
-**Examples:**
+### Example 1
 ```scala
 // ❌ BAD - Using exceptions for control flow
 def parseAge(input: String): Int = {
@@ -345,14 +285,7 @@ def parseJson(json: String): Either[String, JsonObject] = {
   Try(parse(json)).toEither.left.map(_.getMessage)
 }
 ```
-
-### Try for Exception Handling
-- [ ] Use `Try` for operations that may throw exceptions
-- [ ] Convert Try to Either when needed
-- [ ] Use pattern matching with Try
-- [ ] Use `recover` and `recoverWith` for fallback logic
-
-**Examples:**
+### Example 2
 ```scala
 import scala.util.{Try, Success, Failure}
 
@@ -384,18 +317,8 @@ def parseNumber(input: String): Either[String, Int] = {
 }
 ```
 
----
-
 ## 5. Collections and Higher-Order Functions {#collections}
-
-### Collection Operations
-- [ ] Use appropriate collection types (List, Set, Map, Vector, etc.)
-- [ ] Prefer immutable collections
-- [ ] Use higher-order functions (map, filter, fold, etc.)
-- [ ] Avoid loops in favor of functional operations
-- [ ] Use `view` for lazy evaluation when appropriate
-
-**Examples:**
+### Example 1
 ```scala
 // ❌ BAD - Imperative style with loops
 var total = 0
@@ -450,18 +373,8 @@ val userIds = List("1", "2", "3")
 val allOrders: List[Order] = userIds.flatMap(id => getOrdersByUser(id))
 ```
 
----
-
 ## 6. Implicit Classes and Extension Methods {#implicits}
-
-### Implicit Classes
-- [ ] Use implicit classes for extension methods
-- [ ] Keep implicit classes focused (single responsibility)
-- [ ] Place implicits in appropriate scope
-- [ ] Document implicit conversions
-- [ ] Avoid implicit conversions between unrelated types
-
-**Examples:**
+### Example 1
 ```scala
 // ✅ GOOD - Implicit class for string extensions
 implicit class StringOps(val s: String) extends AnyVal {
@@ -511,18 +424,8 @@ if (timestamp.isOlderThan(Duration.ofDays(7))) {
 }
 ```
 
----
-
 ## 7. Future and Asynchronous Programming {#futures}
-
-### Future Best Practices
-- [ ] Use implicit ExecutionContext appropriately
-- [ ] Handle Future failures with recover/recoverWith
-- [ ] Use Future.sequence for parallel execution
-- [ ] Implement proper timeout handling
-- [ ] Avoid blocking on Futures
-
-**Examples:**
+### Example 1
 ```scala
 import scala.concurrent.{Future, ExecutionContext, Await}
 import scala.concurrent.duration._
@@ -593,17 +496,8 @@ def processUser(id: String): Future[String] = {
 }
 ```
 
----
-
 ## 8. Type Classes and Implicits {#type-classes}
-
-### Type Class Pattern
-- [ ] Use type classes for ad-hoc polymorphism
-- [ ] Define type class instances in companion objects
-- [ ] Use context bounds for cleaner syntax
-- [ ] Leverage implicit parameters appropriately
-
-**Examples:**
+### Example 1
 ```scala
 // ✅ GOOD - Type class definition
 trait JsonSerializer[T] {
@@ -646,17 +540,8 @@ val jsonInt = serialize(42) // 42
 val jsonList = serialize(List(1, 2, 3)) // [1,2,3]
 ```
 
----
-
 ## 9. Testing & Tooling {#testing-tooling}
-
-### ScalaTest / MUnit
-- [ ] Use descriptive spec names and organize tests by behavior (`FlatSpec`, `FunSuite`, `WordSpec`)
-- [ ] Prefer async-friendly traits (`AsyncFlatSpec`, `CatsEffectSuite`) for effect-based code
-- [ ] Avoid `Thread.sleep` in tests; rely on `eventually`, `PatienceConfiguration`, or virtual time
-- [ ] Clean up shared resources with `beforeAll`/`afterAll` hooks
-
-**Examples:**
+### Example 1
 ```scala
 class UserServiceSpec extends AsyncFlatSpec with Matchers {
   "UserService" should "return the user" in {
@@ -671,23 +556,8 @@ class UserServiceSpec extends AsyncFlatSpec with Matchers {
 }
 ```
 
-### Property-Based Testing & Tooling
-- [ ] Use ScalaCheck/Hedgehog to validate invariants for critical logic
-- [ ] Provide custom generators/shrinkers and compose them via `forAll`
-- [ ] Enforce scalafmt/scalafix and wartremover/tpolecat compiler flags in CI
-- [ ] Run `sbt test`/`sbt it:test` with coverage reports when required
-
----
-
 ## 10. Effect Systems & Resource Safety {#effect-systems}
-
-### Cats Effect / ZIO Usage
-- [ ] Model side effects using `IO`, `ZIO`, or similar instead of plain `Future`
-- [ ] Use `Resource`/`ZManaged` to open/close clients, DB connections, and files
-- [ ] Avoid blocking inside effect threads; delegate to blocking pools (`Blocker`, `zio.Blocking`)
-- [ ] Propagate cancellations/interruption to downstream fibers to prevent leaks
-
-**Examples:**
+### Example 1
 ```scala
 def kafkaResource: Resource[IO, KafkaProducer[IO, String, String]] =
   KafkaProducer.resource(producerSettings)
@@ -697,21 +567,8 @@ kafkaResource.use { producer =>
 }
 ```
 
-### Context Propagation
-- [ ] Pass tracing/logging context using `Kleisli`, `Env`, or `FiberRef`
-- [ ] Use middleware to add MDC/logging fields when running effects
-
----
-
 ## 11. Streaming & Back-pressure {#streaming}
-
-### fs2 / Akka Streams
-- [ ] Always drain streams to completion (`compile.drain`, `runWith(Sink.ignore)`)
-- [ ] Use bounded queues or throttling to enforce back-pressure
-- [ ] Handle errors with `handleErrorWith`, supervision strategies, or restart flows
-- [ ] Keep streaming logic pure; offload side effects via `evalMap`
-
-**Examples:**
+### Example 1
 ```scala
 def eventsStream(source: Source[Event]): Stream[IO, Processed] =
   source
@@ -722,34 +579,8 @@ def eventsStream(source: Source[Event]): Stream[IO, Processed] =
     }
 ```
 
-### Integration with Effect Systems
-- [ ] Use `Stream.resource`/`ZStream.fromZIO` to bridge between streaming and effect lifecycles
-- [ ] Avoid blocking operations inside stream transformations; shift to blocking pools when necessary
-
----
-
-## Review Checklist Summary
-
-Quick checklist for Scala code reviews:
-
-- [ ] **Option**: Use Option instead of null, prefer map/flatMap/fold over get
-- [ ] **Immutability**: Prefer val over var, use immutable collections
-- [ ] **Case Classes**: Use for data structures, leverage pattern matching
-- [ ] **Sealed Traits**: Use for ADTs, exhaustive pattern matching
-- [ ] **For-Comprehensions**: Appropriate use for monadic composition
-- [ ] **Either/Try**: Proper error handling with custom error types
-- [ ] **Collections**: Functional operations, avoid imperative loops
-- [ ] **Futures**: Proper async handling, timeout management, error recovery
-- [ ] **Type Classes**: Use for polymorphism, instances in companion objects
-- [ ] **Testing/Tooling**: ScalaTest/MUnit best practices, property tests, scalafmt/scalafix/wartremover enforced
-- [ ] **Effect Systems**: Use IO/ZIO with Resource/ZManaged, avoid blocking default pools, propagate cancellations
-- [ ] **Streaming**: fs2/Akka streams drained with back-pressure and error handling
-
----
-
 ## Tools for Code Quality
-
-**Linters and Formatters:**
+### Example 1
 ```bash
 # Scalafmt for code formatting
 scalafmt
@@ -761,8 +592,7 @@ scalafix
 # Add to build.sbt:
 addCompilerPlugin("org.wartremover" %% "wartremover" % "2.4.16")
 ```
-
-**Build Configuration (build.sbt):**
+### Example 2
 ```scala
 // Compiler options
 scalacOptions ++= Seq(
@@ -781,13 +611,3 @@ scalacOptions ++= Seq(
   "-Xfatal-warnings"
 )
 ```
-
----
-
-## References
-
-- [Scala Documentation](https://docs.scala-lang.org/)
-- [Functional Programming in Scala](https://www.manning.com/books/functional-programming-in-scala)
-- [Scala Best Practices](https://nrinaudo.github.io/scala-best-practices/)
-- [Cats Library](https://typelevel.org/cats/) - Functional programming abstractions
-- [ZIO](https://zio.dev/) - Type-safe, composable asynchronous programming

@@ -1,21 +1,7 @@
-# Go Stack-Specific Rules
-
-This document provides Go-specific validation rules for code reviews. These rules supplement the general checklists and should be applied when reviewing Go code.
-
-**Quick resources:** [Cheat Sheet](./concise/go-concise.md) · [Code Examples](./examples-only/go-examples.md)
-
----
+# Go Examples
 
 ## 1. Error Handling {#error-handling}
-
-### Error Handling Best Practices
-- [ ] Always check errors explicitly
-- [ ] Return errors instead of panicking
-- [ ] Wrap errors with context using `fmt.Errorf` with `%w`
-- [ ] Create custom error types for domain errors
-- [ ] Use `errors.Is` and `errors.As` for error comparison
-
-**Examples:**
+### Example 1
 ```go
 // ❌ BAD - Ignoring errors
 func readFile(path string) string {
@@ -102,18 +88,8 @@ func validateInput(data string) error {
 }
 ```
 
----
-
 ## 2. Context Usage {#context-usage}
-
-### Context Best Practices
-- [ ] Pass `context.Context` as first parameter
-- [ ] Use `context.WithTimeout` or `context.WithDeadline` for operations with timeout
-- [ ] Propagate context through call chain
-- [ ] Check context cancellation in long-running operations
-- [ ] Don't store context in structs
-
-**Examples:**
+### Example 1
 ```go
 // ❌ BAD - No context
 func fetchUser(id string) (*User, error) {
@@ -193,18 +169,8 @@ func getUserID(ctx context.Context) (string, bool) {
 }
 ```
 
----
-
 ## 3. Goroutines and Concurrency {#goroutines}
-
-### Concurrency Best Practices
-- [ ] Always handle goroutine completion (use sync.WaitGroup or channels)
-- [ ] Avoid goroutine leaks (ensure goroutines can exit)
-- [ ] Use channels for communication between goroutines
-- [ ] Protect shared state with mutexes or use channels
-- [ ] Use `context.Context` for cancellation
-
-**Examples:**
+### Example 1
 ```go
 // ❌ BAD - Goroutine leak
 func fetchUsers() {
@@ -354,18 +320,8 @@ func processItemsWithWorkers(ctx context.Context, items []Item) error {
 }
 ```
 
----
-
 ## 4. Interfaces and Dependency Injection {#interfaces}
-
-### Interface Best Practices
-- [ ] Define interfaces at the point of use (consumer side)
-- [ ] Keep interfaces small (1-3 methods)
-- [ ] Accept interfaces, return structs
-- [ ] Use dependency injection via constructor functions
-- [ ] Define interfaces for testing and mocking
-
-**Examples:**
+### Example 1
 ```go
 // ❌ BAD - Large interface
 type UserService interface {
@@ -447,18 +403,8 @@ func (m *mockEmailer) SendOrderConfirmation(ctx context.Context, email string, o
 }
 ```
 
----
-
 ## 5. Database and SQL {#database-sql}
-
-### Database Best Practices
-- [ ] Use prepared statements (prevents SQL injection)
-- [ ] Handle `sql.ErrNoRows` explicitly
-- [ ] Use transactions for multi-statement operations
-- [ ] Close rows and statements properly
-- [ ] Use `database/sql` with proper drivers
-
-**Examples:**
+### Example 1
 ```go
 // ❌ BAD - SQL injection vulnerability
 func findUserByEmail(email string) (*User, error) {
@@ -570,18 +516,8 @@ func createUserWithProfile(ctx context.Context, user *User, profile *Profile) er
 }
 ```
 
----
-
 ## 6. Struct and Method Design {#structs-methods}
-
-### Struct Best Practices
-- [ ] Use pointer receivers for methods that modify state
-- [ ] Use value receivers for methods that don't modify state
-- [ ] Keep structs focused (single responsibility)
-- [ ] Use embedded structs for composition
-- [ ] Export only necessary fields
-
-**Examples:**
+### Example 1
 ```go
 // ❌ BAD - Exposing all fields
 type User struct {
@@ -695,18 +631,8 @@ func (b *UserBuilder) Build() (*User, error) {
 }
 ```
 
----
-
 ## 7. Testing {#testing}
-
-### Testing Best Practices
-- [ ] Use table-driven tests
-- [ ] Test error cases
-- [ ] Use subtests for organization
-- [ ] Mock external dependencies
-- [ ] Use test helpers
-
-**Examples:**
+### Example 1
 ```go
 // ✅ GOOD - Table-driven tests
 func TestValidateEmail(t *testing.T) {
@@ -816,18 +742,8 @@ func assertEqual(t *testing.T, got, want interface{}) {
 }
 ```
 
----
-
 ## 8. HTTP Client & Networking {#http-networking}
-
-### `http.Client` Usage
-- [ ] Reuse a configured `http.Client` (or pool) instead of `http.DefaultClient` to avoid exhausting resources
-- [ ] Configure reasonable timeouts (`Timeout`, `Transport` level) for all outbound requests
-- [ ] Pass `context.Context` into every request and cancel it when operations end
-- [ ] Ensure `resp.Body.Close()` is called in all code paths (prefer `defer resp.Body.Close()`)
-- [ ] Use `httptrace` or middleware to capture latency metrics on critical calls
-
-**Examples:**
+### Example 1
 ```go
 // ❌ BAD - Default client, no context, no timeout
 func fetchUser(id string) (*User, error) {
@@ -872,14 +788,7 @@ func fetchUser(ctx context.Context, id string) (*User, error) {
 	return &user, nil
 }
 ```
-
-### Retries, Backoff, and Cancellations
-- [ ] Use retry/backoff libraries (`github.com/hashicorp/go-retryablehttp`, custom exponential backoff) for transient errors
-- [ ] Respect `context` cancellation inside retry loops to prevent runaway calls
-- [ ] Implement idempotency keys for retried mutations
-- [ ] Avoid infinite retries or tight loops; cap attempts and log failures
-
-**Examples:**
+### Example 2
 ```go
 retry := backoff.WithContext(backoff.NewExponentialBackOff(), ctx)
 err := backoff.Retry(func() error {
@@ -895,23 +804,8 @@ err := backoff.Retry(func() error {
 }, retry)
 ```
 
-### Streaming and Large Payloads
-- [ ] Use `io.Copy`/`io.CopyBuffer` when streaming large payloads instead of reading entire bodies into memory
-- [ ] Set `req.ContentLength` and use chunked uploads/downloads when supported
-- [ ] Guard against zip bombs and enforce maximum payload sizes
-- [ ] For gRPC, configure keep-alives, deadlines, and interceptors for logging/metrics
-
----
-
 ## 9. Observability & Logging {#observability}
-
-### Structured Logging
-- [ ] Use structured loggers (zap, zerolog, slog) with contextual fields instead of `fmt.Println`
-- [ ] Include request identifiers (`trace_id`, `user_id`) using `context` values
-- [ ] Avoid logging sensitive data (PII, secrets, tokens); mask when necessary
-- [ ] Use appropriate log levels (Debug, Info, Error) and avoid flooding logs with noisy messages
-
-**Examples:**
+### Example 1
 ```go
 // ❌ BAD - Unstructured logging with secrets
 log.Printf("User %+v", user)
@@ -920,14 +814,7 @@ log.Printf("User %+v", user)
 logger := slog.With("trace_id", traceID, "user_id", user.ID)
 logger.Info("user login", "ip", ip, "success", true)
 ```
-
-### Metrics and Tracing
-- [ ] Emit latency/error metrics for HTTP handlers, DB operations, and goroutines (Prometheus, StatsD)
-- [ ] Instrument HTTP clients/servers with OpenTelemetry (`otelhttp`) or equivalent
-- [ ] Propagate trace/span context through `context.Context`
-- [ ] Record custom attributes (endpoint, status code, payload sizes) for debugging
-
-**Examples:**
+### Example 2
 ```go
 func handler(w http.ResponseWriter, r *http.Request) {
 	ctx, span := tracer.Start(r.Context(), "handler")
@@ -939,22 +826,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-### Diagnostics
-- [ ] Enable `go test -race` and `go test -run Test -v ./...` in CI for concurrency issues
-- [ ] Provide `/debug/pprof` endpoints (guarded) for production profiling when appropriate
-- [ ] Capture panic dumps with stack traces and restart strategies
-
----
-
 ## 10. Configuration & Secrets Management {#configuration}
-
-### Environment-Driven Configuration
-- [ ] Use environment variables or config files (Viper, envconfig) rather than hard-coded values
-- [ ] Validate configuration at startup and fail fast on missing/invalid values
-- [ ] Support multiple environments (dev/staging/prod) with override files or flags
-- [ ] Document required variables in README or sample `.env`
-
-**Examples:**
+### Example 1
 ```go
 type Config struct {
 	DBURL       string        `env:"DATABASE_URL,required"`
@@ -970,39 +843,8 @@ func LoadConfig() (*Config, error) {
 }
 ```
 
-### Secrets Handling
-- [ ] Store secrets in secret managers (Vault, AWS Secrets Manager) or environment variables injected by CI/CD
-- [ ] Never commit secrets/API keys to the repo
-- [ ] Avoid printing secrets in logs or error messages
-- [ ] Rotate credentials regularly and provide mechanisms for zero-downtime rotation
-
-### Database & Service Credentials
-- [ ] Use minimal privilege accounts per service
-- [ ] Prefer IAM roles/service accounts instead of long-lived passwords where possible
-- [ ] Encrypt sensitive config at rest and in transit
-
----
-
-## Review Checklist Summary
-
-Quick checklist for Go code reviews:
-
-- [ ] **Errors**: Always check errors, wrap with context, use custom types
-- [ ] **Context**: Pass as first parameter, use for timeout/cancellation
-- [ ] **Goroutines**: No leaks, proper synchronization, avoid race conditions
-- [ ] **Interfaces**: Small interfaces, dependency injection, consumer-side definition
-- [ ] **Database**: Prepared statements, close resources, handle transactions
-- [ ] **Structs**: Proper encapsulation, consistent receivers, composition
-- [ ] **Testing**: Table-driven tests, mock dependencies, test error cases
-- [ ] **HTTP/Networking**: Reused clients, timeouts, context propagation, retries, close response bodies
-- [ ] **Observability**: Structured logging, metrics/tracing instrumentation, diagnostics enabled
-- [ ] **Configuration/Security**: Env-driven config, secrets management, documented variables
-
----
-
 ## Tools for Code Quality
-
-**Linters and Formatters:**
+### Example 1
 ```bash
 # Format code
 go fmt ./...
@@ -1020,8 +862,7 @@ go vet ./...
 # Static analysis
 staticcheck ./...
 ```
-
-**golangci-lint configuration (.golangci.yml):**
+### Example 2
 ```yaml
 linters:
   enable:
@@ -1040,13 +881,3 @@ linters:
     - noctx
     - sqlclosecheck
 ```
-
----
-
-## References
-
-- [Effective Go](https://golang.org/doc/effective_go)
-- [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
-- [Uber Go Style Guide](https://github.com/uber-go/guide/blob/master/style.md)
-- [Go Proverbs](https://go-proverbs.github.io/)
-- [Standard Library Documentation](https://pkg.go.dev/std)

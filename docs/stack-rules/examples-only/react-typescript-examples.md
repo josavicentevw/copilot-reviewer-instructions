@@ -1,21 +1,7 @@
-# React/TypeScript Stack-Specific Rules
-
-This document provides React and TypeScript-specific validation rules for code reviews. These rules supplement the general checklists and should be applied when reviewing React/TypeScript code.
-
-**Quick resources:** [Cheat Sheet](./concise/react-typescript-concise.md) · [Code Examples](./examples-only/react-typescript-examples.md)
-
----
+# React/TypeScript Examples
 
 ## 1. TypeScript Strict Mode Requirements {#typescript-strict}
-
-### Avoid `any` Type
-- [ ] No usage of `any` type unless absolutely necessary with justification comment
-- [ ] Use `unknown` instead of `any` for truly dynamic types
-- [ ] Define proper interfaces/types for external data
-- [ ] Use type guards for narrowing `unknown` types
-- [ ] Enable `strict` mode in `tsconfig.json`
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Using any without justification
 function processData(data: any) {
@@ -51,15 +37,7 @@ interface LegacyApiResponse {
   status: number;
 }
 ```
-
-### Type Inference and Explicit Types
-- [ ] Let TypeScript infer simple types (don't over-annotate)
-- [ ] Explicitly type function return values for public APIs
-- [ ] Use type assertions sparingly with `as` keyword
-- [ ] Prefer type guards over type assertions
-- [ ] Use generics for reusable type-safe functions
-
-**Examples:**
+### Example 2
 ```typescript
 // ❌ BAD - Unnecessary type annotations
 const count: number = 5;
@@ -104,18 +82,8 @@ if (isUser(data)) {
 }
 ```
 
----
-
 ## 2. React Hooks Rules {#react-hooks}
-
-### Dependency Arrays
-- [ ] All dependencies used in effect included in dependency array
-- [ ] No missing dependencies (ESLint rule `react-hooks/exhaustive-deps` enabled)
-- [ ] No unnecessary dependencies causing extra renders
-- [ ] Use `useCallback` for function dependencies in effects
-- [ ] Use `useMemo` for computed values used as dependencies
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Missing dependencies
 const [count, setCount] = useState(0);
@@ -155,15 +123,7 @@ useEffect(() => {
   return () => subscription.unsubscribe();
 }, [handleDataUpdate]);
 ```
-
-### Custom Hooks
-- [ ] Custom hooks start with `use` prefix
-- [ ] Custom hooks encapsulate reusable stateful logic
-- [ ] Custom hooks follow Rules of Hooks
-- [ ] Custom hooks have clear, focused responsibility
-- [ ] Custom hooks are properly typed with TypeScript
-
-**Examples:**
+### Example 2
 ```typescript
 // ✅ GOOD - Custom hook for API fetching
 interface UseFetchResult<T> {
@@ -246,15 +206,7 @@ function useForm<T extends Record<string, any>>(
   return { values, errors, handleChange, handleSubmit, reset };
 }
 ```
-
-### Hook Rules
-- [ ] Only call hooks at the top level (not in loops, conditions, or nested functions)
-- [ ] Only call hooks from React functions (components or custom hooks)
-- [ ] Use ESLint plugin `eslint-plugin-react-hooks`
-- [ ] Clean up effects with return function when needed
-- [ ] Avoid infinite loops in useEffect
-
-**Examples:**
+### Example 3
 ```typescript
 // ❌ BAD - Conditional hook call
 function UserProfile({ userId }: { userId: string | null }) {
@@ -303,18 +255,8 @@ useEffect(() => {
 }, [url]);
 ```
 
----
-
 ## 3. Component Patterns {#component-patterns}
-
-### Functional Components
-- [ ] Use functional components (not class components)
-- [ ] Define prop interfaces with TypeScript
-- [ ] Use React.FC sparingly (prefer explicit prop typing)
-- [ ] Export component and prop interface
-- [ ] Use default props appropriately
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Using React.FC (discouraged in newer React)
 const Button: React.FC<{ label: string }> = ({ label }) => {
@@ -400,15 +342,7 @@ export function List<T>({
   );
 }
 ```
-
-### Component Composition
-- [ ] Favor composition over inheritance
-- [ ] Use children prop for flexible layouts
-- [ ] Create reusable, single-responsibility components
-- [ ] Use render props or custom hooks for sharing logic
-- [ ] Keep components focused and testable
-
-**Examples:**
+### Example 2
 ```typescript
 // ✅ GOOD - Composition with children
 interface ModalProps {
@@ -448,18 +382,8 @@ function App() {
 }
 ```
 
----
-
 ## 4. State Management {#state-management}
-
-### useState Best Practices
-- [ ] Use multiple useState calls for independent state
-- [ ] Use single useState with object for related state
-- [ ] Initialize state with proper types
-- [ ] Use functional updates when new state depends on previous state
-- [ ] Avoid storing derived state (use useMemo instead)
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Single state for unrelated values
 const [state, setState] = useState({
@@ -504,15 +428,7 @@ const [itemCount, setItemCount] = useState(0); // Derived from items
 const [items, setItems] = useState<Item[]>([]);
 const itemCount = items.length; // Or use useMemo if expensive
 ```
-
-### useEffect Best Practices
-- [ ] Use separate useEffect hooks for different concerns
-- [ ] Return cleanup function when needed
-- [ ] Avoid putting too much logic in useEffect
-- [ ] Extract complex logic to custom hooks or utility functions
-- [ ] Use useLayoutEffect only when measuring DOM before paint
-
-**Examples:**
+### Example 2
 ```typescript
 // ❌ BAD - Multiple concerns in single effect
 useEffect(() => {
@@ -541,15 +457,7 @@ useEffect(() => {
   return () => { document.title = 'App'; };
 }, [userId]);
 ```
-
-### Context API
-- [ ] Use Context for truly global state (theme, auth, localization)
-- [ ] Don't overuse Context (prefer prop drilling for 1-2 levels)
-- [ ] Split contexts by concern (don't create massive global context)
-- [ ] Memoize context value to prevent unnecessary re-renders
-- [ ] Provide TypeScript types for context value
-
-**Examples:**
+### Example 3
 ```typescript
 // ✅ GOOD - Typed context with provider
 interface AuthContextValue {
@@ -606,18 +514,8 @@ function UserProfile() {
 }
 ```
 
----
-
 ## 5. HTTP Client Requirements {#http-client}
-
-### Timeouts and Abort Controllers
-- [ ] All HTTP requests have explicit timeouts
-- [ ] Use AbortController for cancellable requests
-- [ ] Clean up aborted requests in useEffect
-- [ ] Handle timeout errors appropriately
-- [ ] Configure default timeout in HTTP client
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - No timeout
 async function fetchUser(id: string): Promise<User> {
@@ -700,15 +598,7 @@ function UserProfile({ userId }: { userId: string }) {
   return <div>{user.name}</div>;
 }
 ```
-
-### Error Handling
-- [ ] Create custom error classes for different error types
-- [ ] Handle network errors separately from HTTP errors
-- [ ] Provide user-friendly error messages
-- [ ] Log errors with sufficient context
-- [ ] Implement retry logic for transient failures
-
-**Examples:**
+### Example 2
 ```typescript
 // ✅ GOOD - Custom error classes
 export class ApiError extends Error {
@@ -815,18 +705,8 @@ function DataDisplay() {
 }
 ```
 
----
-
 ## 6. Performance Optimization {#performance}
-
-### Memoization
-- [ ] Use React.memo for expensive components that receive same props
-- [ ] Use useMemo for expensive computations
-- [ ] Use useCallback for functions passed as props
-- [ ] Don't over-optimize (profile first)
-- [ ] Avoid inline object/array creation in props
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Inline object creation causes re-render
 function Parent() {
@@ -881,18 +761,8 @@ function DataAnalysis({ data }: { data: number[] }) {
 }
 ```
 
----
-
 ## 7. Accessibility & Internationalization {#accessibility-i18n}
-
-### Semantic Markup and ARIA
-- [ ] Prefer semantic HTML elements (`button`, `nav`, `header`) over generic `div`/`span` for interactive UI
-- [ ] Supply accessible names via `aria-label`, `aria-labelledby`, or visible text for custom controls
-- [ ] Ensure focus order matches visual order and manage focus when dialogs/overlays open or close
-- [ ] Do not use `role`/`aria-*` attributes to mask poor DOM structure; fix the markup first
-- [ ] Provide `aria-live` regions for async content (loading states, background updates) where necessary
-
-**Examples:**
+### Example 1
 ```tsx
 // ❌ BAD - Clickable div with no semantics or focus
 export function IconButton({ onClick }: { onClick: () => void }) {
@@ -924,14 +794,7 @@ export function ConfirmDialog({ open, onClose }: Props) {
   );
 }
 ```
-
-### Keyboard Interaction and Color Contrast
-- [ ] All interactive elements are reachable via keyboard (`Tab`, `Shift+Tab`, arrow keys where applicable)
-- [ ] Ensure visible focus indicators meet WCAG contrast requirements (3:1 ratio minimum)
-- [ ] Avoid disabling focus outlines without providing an accessible replacement
-- [ ] Provide skip links for long navigation menus when appropriate
-
-**Examples:**
+### Example 2
 ```tsx
 // ❌ BAD - Removing focus outline with no alternative
 const StyledButton = styled.button`
@@ -946,15 +809,7 @@ const StyledButton = styled.button`
   }
 `;
 ```
-
-### Internationalization and Localization
-- [ ] Use a localization framework (react-intl, i18next, FormatJS) instead of hard-coded text
-- [ ] Extract user-facing strings to translation files and provide interpolation placeholders with context
-- [ ] Format dates, numbers, and currencies using locale-aware APIs (`Intl.DateTimeFormat`, `Intl.NumberFormat`)
-- [ ] Ensure layout can adapt to RTL languages and long translations (avoid fixed widths)
-- [ ] Never concatenate translated strings—use structured messages with placeholders
-
-**Examples:**
+### Example 3
 ```tsx
 // ❌ BAD - Hard-coded English string and date
 return <p>{`Welcome ${user.name}, today is ${new Date().toLocaleDateString()}`}</p>;
@@ -977,14 +832,7 @@ export function WelcomeBanner({ user }: { user: User }) {
   );
 }
 ```
-
-### Safe HTML and Dynamic Content
-- [ ] Avoid `dangerouslySetInnerHTML`; if required, sanitize input with a trusted library (DOMPurify) and document the data source
-- [ ] Escape user-generated content before rendering; never trust backend-supplied HTML without sanitization
-- [ ] For markdown/HTML renderers, use allowlists for tags/attributes and strip scripts/styles
-- [ ] Provide fallbacks when fonts/icons fail to load to keep text readable
-
-**Examples:**
+### Example 4
 ```tsx
 // ❌ BAD - Rendering server HTML with no sanitization
 <div dangerouslySetInnerHTML={{ __html: props.articleBody }} />
@@ -998,18 +846,8 @@ export function ArticleBody({ html }: { html: string }) {
 }
 ```
 
----
-
 ## 8. Testing Strategy {#testing}
-
-### React Testing Library & Jest
-- [ ] Prefer React Testing Library (RTL) for component/unit tests to exercise behavior, not implementation details
-- [ ] Query elements using accessible roles/text (`screen.getByRole`, `getByText`) instead of brittle selectors
-- [ ] Use `userEvent` to simulate real user interactions and await async updates with `findBy*`/`waitFor`
-- [ ] Keep tests deterministic by mocking timers/network calls and cleaning up after each test
-- [ ] Avoid snapshot-only coverage; assert on observable behavior instead
-
-**Examples:**
+### Example 1
 ```tsx
 // ❌ BAD - Testing implementation details and snapshot-only
 const { container, instance } = render(<Counter />);
@@ -1026,14 +864,7 @@ test('increments count when button clicked', async () => {
   expect(screen.getByText(/count: 1/i)).toBeInTheDocument();
 });
 ```
-
-### Mocking Data Fetching and Side Effects
-- [ ] Mock HTTP clients/fetch requests (MSW, jest-fetch-mock, Axios mocks) to avoid real network calls
-- [ ] Use MSW or Storybook mock handlers to keep tests close to production behavior
-- [ ] Assert error states (timeouts, 500s) in addition to happy path
-- [ ] Clean up spies/mocks between tests (`afterEach(jest.resetAllMocks)`)
-
-**Examples:**
+### Example 2
 ```tsx
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -1054,27 +885,8 @@ test('renders user name from API', async () => {
 });
 ```
 
-### Component Variants, Storybook, and Visual Regression
-- [ ] Maintain Storybook stories (or equivalent) for complex components to preview different states
-- [ ] Use interaction tests (`play` functions or Storybook Testing Library) for UI flows that cross components
-- [ ] Run visual regression tests (Chromatic/Backstop) for high-risk styling changes, especially around accessibility adjustments
-
-### End-to-End and Integration Signals
-- [ ] Ensure Cypress/Playwright suites cover critical user funnels impacted by React changes
-- [ ] Gate asynchronous logic with test IDs or aria attributes only when necessary and documented
-- [ ] When adding hooks/context logic, include integration tests that render the provider tree (not just isolated hook tests)
-
----
-
 ## 9. Resiliency, Suspense, and Code Splitting {#resiliency}
-
-### Error Boundaries
-- [ ] Wrap asynchronous component trees (lazy-loaded routes, data fetching shells) in an `ErrorBoundary`
-- [ ] Provide user-friendly fallback UIs with retry/feedback actions
-- [ ] Log error boundary failures to observability tooling (Sentry, Datadog) with context
-- [ ] Avoid throwing non-Error objects; standardize on `Error` subclasses for predictable handling
-
-**Examples:**
+### Example 1
 ```tsx
 // ✅ GOOD - Reusable error boundary
 class RouteErrorBoundary extends React.Component<Props, State> {
@@ -1101,14 +913,7 @@ class RouteErrorBoundary extends React.Component<Props, State> {
   }
 }
 ```
-
-### Suspense and Data Fetching
-- [ ] Use `React.Suspense` with appropriate fallbacks for lazy components and data libraries (React Query, Relay)
-- [ ] Ensure Suspense fallbacks do not block critical page content indefinitely
-- [ ] Combine Suspense with `useTransition`/`startTransition` when deferring low-priority updates
-- [ ] Handle rejected promises from data loaders; do not rely solely on Suspense for error cases
-
-**Examples:**
+### Example 2
 ```tsx
 const UserProfile = React.lazy(() => import('./UserProfile'));
 
@@ -1122,14 +927,7 @@ export function Dashboard() {
   );
 }
 ```
-
-### Code Splitting and Lazy Loading
-- [ ] Use dynamic imports (`React.lazy`, `next/dynamic`, `loadable-components`) for large routes/widgets to reduce initial bundle size
-- [ ] Preload critical chunks when the user is likely to need them (prefetch on hover/in viewport)
-- [ ] Ensure lazy-loaded components still enforce authentication/authorization checks
-- [ ] Avoid waterfalls by grouping related imports or using `Promise.all`
-
-**Examples:**
+### Example 3
 ```tsx
 // ✅ GOOD - Route-based code splitting with prefetch
 const ReportsPage = React.lazy(() => import('./ReportsPage'));
@@ -1156,34 +954,3 @@ useEffect(() => {
   return () => controller.abort();
 }, []);
 ```
-
-### Network Resiliency
-- [ ] Surface retry/backoff UI for failed HTTP calls (especially mutations)
-- [ ] Cancel in-flight requests on component unmount to avoid updating unmounted components
-- [ ] Cache data locally (React Query/SWR) to avoid refetch storms during transitions
-- [ ] Validate that offline/slow-network states render meaningful messaging
-
----
-
-## Review Checklist Summary
-
-Quick checklist for React/TypeScript code reviews:
-
-- [ ] **TypeScript**: No `any` without justification, proper type annotations, strict mode enabled
-- [ ] **Hooks**: Proper dependency arrays, custom hooks follow rules, cleanup in effects
-- [ ] **Components**: Functional components with typed props, proper composition
-- [ ] **State**: Appropriate use of useState/useEffect/Context, no derived state
-- [ ] **HTTP**: Timeouts configured, AbortController used, proper error handling
-- [ ] **Performance**: Appropriate memoization, avoid unnecessary re-renders
-- [ ] **Accessibility/i18n**: Semantic markup, keyboard/focus handling, localized strings, safe HTML usage
-- [ ] **Testing**: Behavior-focused RTL/Jest coverage with mocked data sources and documented Storybook/E2E scenarios
-- [ ] **Resiliency**: Error boundaries, Suspense fallbacks, code splitting, and retry/cancellation patterns in place
-
----
-
-## References
-
-- [React TypeScript Cheatsheet](https://react-typescript-cheatsheet.netlify.app/)
-- [React Hooks Documentation](https://react.dev/reference/react)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
-- [React Best Practices](https://react.dev/learn)

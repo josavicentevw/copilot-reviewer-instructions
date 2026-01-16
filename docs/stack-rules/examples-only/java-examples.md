@@ -1,22 +1,7 @@
-# Java Stack-Specific Rules
-
-This document provides Java-specific validation rules for code reviews. These rules supplement the general checklists and should be applied when reviewing Java code.
-
-**Quick resources:** [Cheat Sheet](./concise/java-concise.md) · [Code Examples](./examples-only/java-examples.md)
-
----
+# Java Examples
 
 ## 1. Null Safety {#null-safety}
-
-### Optional Usage
-- [ ] Use `Optional<T>` for methods that may return null
-- [ ] Never return `null` from methods that return `Optional`
-- [ ] Use `Optional.ofNullable()` when wrapping potentially null values
-- [ ] Avoid `Optional.get()` without `isPresent()` check
-- [ ] Use `orElse()`, `orElseGet()`, `orElseThrow()` appropriately
-- [ ] Don't use Optional for class fields (use nullable types instead)
-
-**Examples:**
+### Example 1
 ```java
 // ❌ BAD - Returning null from Optional method
 public Optional<User> findUser(String id) {
@@ -58,14 +43,7 @@ String email = findUser(id)
     .map(Profile::getEmail)
     .orElse("no-email@example.com");
 ```
-
-### Null Annotations
-- [ ] Use `@NonNull` and `@Nullable` annotations (javax.annotation or org.jetbrains.annotations)
-- [ ] Enable null-checking tools (SpotBugs, NullAway, Checker Framework)
-- [ ] Validate input parameters for null
-- [ ] Use `Objects.requireNonNull()` for parameter validation
-
-**Examples:**
+### Example 2
 ```java
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -91,19 +69,8 @@ public class UserService {
 }
 ```
 
----
-
 ## 2. Streams and Functional Programming {#streams}
-
-### Stream Best Practices
-- [ ] Use streams for collection operations (filter, map, reduce)
-- [ ] Don't modify collections while streaming
-- [ ] Use appropriate terminal operations (collect, findFirst, anyMatch, etc.)
-- [ ] Avoid side effects in stream operations
-- [ ] Use parallel streams only for CPU-intensive operations
-- [ ] Close streams that use resources (Files.lines, etc.)
-
-**Examples:**
+### Example 1
 ```java
 // ❌ BAD - Modifying collection during stream
 List<User> users = getUsers();
@@ -150,19 +117,8 @@ try (Stream<String> lines = Files.lines(Paths.get("file.txt"))) {
 }
 ```
 
----
-
 ## 3. Exception Handling {#exception-handling}
-
-### Exception Best Practices
-- [ ] Use specific exception types (not generic `Exception` or `RuntimeException`)
-- [ ] Create custom exception classes for domain errors
-- [ ] Include meaningful error messages and context
-- [ ] Use try-with-resources for AutoCloseable resources
-- [ ] Don't swallow exceptions silently
-- [ ] Log exceptions with full context
-
-**Examples:**
+### Example 1
 ```java
 // ❌ BAD - Generic exception
 public void processOrder(String orderId) throws Exception {
@@ -252,18 +208,8 @@ public void copyFile(String source, String dest) throws IOException {
 }
 ```
 
----
-
 ## 4. Repository and JPA Patterns {#repository-jpa}
-
-### JPA/Hibernate Best Practices
-- [ ] Use parameterized queries (never string concatenation)
-- [ ] Define proper indexes on entities
-- [ ] Configure fetch types appropriately (LAZY vs EAGER)
-- [ ] Use projections for read-only queries
-- [ ] Avoid N+1 query problems
-
-**Examples:**
+### Example 1
 ```java
 // ❌ BAD - SQL injection vulnerability
 @Repository
@@ -385,18 +331,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 }
 ```
 
----
-
 ## 5. Dependency Injection with Spring {#dependency-injection}
-
-### Spring DI Best Practices
-- [ ] Use constructor injection (preferred over field injection)
-- [ ] Avoid `@Autowired` on fields
-- [ ] Use `@Configuration` classes for bean definitions
-- [ ] Avoid circular dependencies
-- [ ] Use `@Qualifier` when multiple beans of same type exist
-
-**Examples:**
+### Example 1
 ```java
 // ❌ BAD - Field injection
 @Service
@@ -489,14 +425,7 @@ public class PaymentService {
     }
 }
 ```
-
-### Configuration Properties
-- [ ] Use `@ConfigurationProperties` for grouped properties
-- [ ] Validate configuration with `@Validated`
-- [ ] Use type-safe configuration classes
-- [ ] Document required configuration
-
-**Examples:**
+### Example 2
 ```java
 // ✅ GOOD - Type-safe configuration properties
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -572,18 +501,8 @@ public class PaymentService {
 }
 ```
 
----
-
 ## 6. Logging Best Practices {#logging}
-
-### SLF4J Logging
-- [ ] Use SLF4J with appropriate log levels
-- [ ] Use parameterized logging (not string concatenation)
-- [ ] Log exceptions with full context
-- [ ] Use MDC for structured logging
-- [ ] Don't log PII (mask sensitive data)
-
-**Examples:**
+### Example 1
 ```java
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -646,17 +565,8 @@ logger.warn("Retry attempt {} failed", attempt);      // Warning
 logger.error("Failed to process payment", exception); // Error
 ```
 
----
-
 ## 7. Immutability and Records {#immutability}
-
-### Java Records (Java 14+)
-- [ ] Use records for immutable data carriers
-- [ ] Leverage compact constructors for validation
-- [ ] Use records for DTOs and value objects
-- [ ] Avoid records with mutable components
-
-**Examples:**
+### Example 1
 ```java
 // ✅ GOOD - Simple record
 public record UserResponse(
@@ -699,13 +609,7 @@ public record UserData(String name, List<String> roles) {
     }
 }
 ```
-
-### Collections Immutability
-- [ ] Use `List.of()`, `Set.of()`, `Map.of()` for immutable collections
-- [ ] Use `Collections.unmodifiableList()` for wrapping mutable collections
-- [ ] Make defensive copies when needed
-
-**Examples:**
+### Example 2
 ```java
 // ✅ GOOD - Immutable collections
 List<String> roles = List.of("ADMIN", "USER");
@@ -726,17 +630,8 @@ public class User {
 }
 ```
 
----
-
 ## 8. Concurrency and Threading {#concurrency}
-
-### Thread Pools and Executors
-- [ ] Use `ExecutorService`/`CompletableFuture` instead of creating raw threads
-- [ ] Configure pool sizes based on workload (CPU vs I/O) and reuse globally where possible
-- [ ] Shut down executors gracefully (`shutdown()`/`awaitTermination()`)
-- [ ] Avoid blocking operations inside reactive or async frameworks unless scheduled appropriately
-
-**Examples:**
+### Example 1
 ```java
 // ❌ BAD - Creating thread per request
 new Thread(() -> process(order)).start();
@@ -749,28 +644,8 @@ public CompletableFuture<Order> processOrderAsync(Order order) {
 }
 ```
 
-### CompletableFuture and Reactive Pipelines
-- [ ] Chain stages using `thenCompose`, `thenCombine`, and `handle` to propagate errors
-- [ ] Use `orTimeout`/`completeOnTimeout` for futures that should fail fast
-- [ ] Avoid blocking calls (`join`, `get`) on threads that should remain non-blocking (e.g., servlet threads)
-- [ ] Capture MDC/logging context when executing async tasks
-
-### Synchronization and Shared State
-- [ ] Prefer immutable data structures or `java.util.concurrent` collections
-- [ ] Guard mutable shared state with locks (synchronized blocks, `ReentrantLock`) or atomics
-- [ ] Leverage `@Transactional` boundaries carefully—avoid mixing long-running asynchronous work with open transactions
-
----
-
 ## 9. Testing Strategy {#testing}
-
-### Unit and Integration Testing
-- [ ] Use JUnit 5 (Jupiter) with clear naming and lifecycle hooks
-- [ ] Mock collaborators with Mockito/MockK; avoid partial mocks and static/global state
-- [ ] Test Spring components with slicing annotations (`@WebMvcTest`, `@DataJpaTest`) when full context isn’t needed
-- [ ] Use Testcontainers for database/external services to avoid brittle embedded mocks
-
-**Examples:**
+### Example 1
 ```java
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
@@ -791,35 +666,8 @@ class UserControllerTest {
 }
 ```
 
-### Testing Asynchronous Code
-- [ ] Use `CompletableFuture` timeouts and `Awaitility` or `StepVerifier` (reactive) to assert async behavior
-- [ ] Avoid sleeping in tests; use latches or virtual time
-- [ ] Verify that scheduled tasks are registered with `TaskScheduler` or `@EnableScheduling` in integration tests
-
-### Code Coverage and Tooling
-- [ ] Run `mvn test`/`gradlew test` with Jacoco or equivalent coverage reports
-- [ ] Include mutation testing (PIT) for critical modules when feasible
-
----
-
 ## 10. Security and Validation {#security}
-
-### Input Validation and Sanitization
-- [ ] Validate request payloads using Bean Validation (`@NotBlank`, `@Email`) and custom validators
-- [ ] Sanitize inputs before logging or using in queries; never concatenate strings into SQL/JPQL
-- [ ] Enforce size limits on file uploads and serialized payloads
-
-### HTTP Clients and SSRF Prevention
-- [ ] Use `RestTemplate`/`WebClient` with timeouts and connection pools configured
-- [ ] Restrict outbound HTTP hosts or verify against allowlists to prevent SSRF
-- [ ] Avoid using user-provided URLs without validation; strip protocols/ports as needed
-
-### Secrets and Logging
-- [ ] Load secrets via `@ConfigurationProperties` and external vaults; never commit credentials
-- [ ] Mask PII and secrets in logs; avoid logging entire request/response bodies
-- [ ] Use `EncryptedPropertySource` or environment-specific overrides for sensitive settings
-
-**Examples:**
+### Example 1
 ```java
 @ConfigurationProperties(prefix = "external.api")
 @Validated
@@ -829,29 +677,8 @@ public record ExternalApiConfig(
 ) {}
 ```
 
----
-
-## Review Checklist Summary
-
-Quick checklist for Java code reviews:
-
-- [ ] **Null Safety**: Proper Optional usage, null annotations, Objects.requireNonNull
-- [ ] **Streams**: Appropriate stream operations, avoid side effects
-- [ ] **Exceptions**: Specific exception types, try-with-resources, proper handling
-- [ ] **JPA**: Parameterized queries, proper indexes, fetch types configured
-- [ ] **DI**: Constructor injection, configuration properties validated
-- [ ] **Logging**: SLF4J with parameterized messages, MDC for context, no PII
-- [ ] **Immutability**: Records for DTOs, immutable collections
-- [ ] **Concurrency**: Executor usage, CompletableFuture patterns, properly synchronized shared state
-- [ ] **Testing**: JUnit 5, Spring slices/Testcontainers, async behavior covered
-- [ ] **Security**: Input validation, SSRF protections, secrets/configuration management
-- [ ] **Code Style**: Follow Java conventions, use Lombok when appropriate
-
----
-
 ## Tools for Code Quality
-
-**Linters and Formatters:**
+### Example 1
 ```bash
 # Maven
 mvn checkstyle:check
@@ -867,21 +694,10 @@ mvn pmd:check
 mvn spotless:apply
 ./gradlew spotlessApply
 ```
-
-**Static Analysis:**
+### Example 2
 ```bash
 # SpotBugs for bug detection
 # PMD for code quality
 # Checkstyle for style enforcement
 # SonarQube for comprehensive analysis
 ```
-
----
-
-## References
-
-- [Effective Java (3rd Edition) by Joshua Bloch](https://www.oreilly.com/library/view/effective-java/9780134686097/)
-- [Spring Framework Documentation](https://docs.spring.io/spring-framework/docs/current/reference/html/)
-- [Java Code Conventions](https://www.oracle.com/java/technologies/javase/codeconventions-contents.html)
-- [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
-- [JPA Best Practices](https://thoughts-on-java.org/jpa-best-practices/)

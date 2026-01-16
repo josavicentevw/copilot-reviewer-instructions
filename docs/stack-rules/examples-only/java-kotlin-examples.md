@@ -1,21 +1,7 @@
-# Java/Kotlin Stack-Specific Rules
-
-This document provides Kotlin and Java-specific validation rules for code reviews. These rules supplement the general checklists and should be applied when reviewing Kotlin or Java code.
-
-**Quick resources:** [Cheat Sheet](./concise/java-kotlin-concise.md) · [Code Examples](./examples-only/java-kotlin-examples.md)
-
----
+# Java Kotlin Examples
 
 ## 1. Null Safety {#null-safety}
-
-### Kotlin Null-Safety Requirements
-- [ ] Use Kotlin's null-safe types (`String?` vs `String`)
-- [ ] Avoid `!!` operator (null assertion) unless absolutely necessary with justification comment
-- [ ] Use safe call operator `?.` and Elvis operator `?:` appropriately
-- [ ] Leverage `let`, `run`, `also`, `apply` for null-safe operations
-- [ ] No unnecessary null checks for non-nullable types
-
-**Examples:**
+### Example 1
 ```kotlin
 // ❌ BAD - Using !! operator without justification
 val name = user.name!!.uppercase()
@@ -41,15 +27,7 @@ user.name?.let { name ->
 val user = userRepository.findById(id) ?: throw UserNotFoundException(id)
 val name = user.name!! // Name is required field, validated at creation
 ```
-
-### Java Optional Usage
-- [ ] Use `Optional<T>` for methods that may return null
-- [ ] Never return `null` from methods that return `Optional`
-- [ ] Use `Optional.ofNullable()` when wrapping potentially null values
-- [ ] Avoid `Optional.get()` without `isPresent()` check
-- [ ] Use `orElse()`, `orElseGet()`, `orElseThrow()` appropriately
-
-**Examples:**
+### Example 2
 ```java
 // ❌ BAD - Returning null from Optional method
 public Optional<User> findUser(String id) {
@@ -75,17 +53,8 @@ String userName = findUser(id)
     .orElse("Unknown");
 ```
 
----
-
 ## 2. Data Classes and Sealed Classes {#data-classes}
-
-### Data Classes
-- [ ] Use `data class` for simple data holders
-- [ ] Include only properties needed for equality/hashCode in primary constructor
-- [ ] Override `toString()`, `equals()`, `hashCode()` only when default behavior insufficient
-- [ ] Use `copy()` method for immutable updates
-
-**Examples:**
+### Example 1
 ```kotlin
 // ✅ GOOD - Simple data class
 data class UserResponse(
@@ -109,14 +78,7 @@ data class UserRequest(
 // ✅ GOOD - Immutable update with copy
 val updatedUser = user.copy(name = "New Name")
 ```
-
-### Sealed Classes
-- [ ] Use `sealed class` for representing restricted class hierarchies
-- [ ] Prefer `sealed class` over enum when subclasses need different properties
-- [ ] Leverage exhaustive `when` expressions with sealed classes
-- [ ] Define sealed classes in same file as subclasses (or same package in Kotlin 1.5+)
-
-**Examples:**
+### Example 2
 ```kotlin
 // ✅ GOOD - Sealed class for result types
 sealed class Result<out T> {
@@ -144,17 +106,8 @@ sealed class OrderEvent {
 }
 ```
 
----
-
 ## 3. Repository and DAO Patterns {#repository-patterns}
-
-### Parameterized Queries
-- [ ] All database queries use parameterized queries or prepared statements
-- [ ] No string concatenation for building SQL/JPQL/HQL queries
-- [ ] Use named parameters in JPA/Hibernate queries
-- [ ] DAO methods have appropriate `@Query` annotations
-
-**Examples:**
+### Example 1
 ```kotlin
 // ❌ BAD - SQL injection vulnerability
 @Repository
@@ -190,15 +143,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
     ): List<Order>
 }
 ```
-
-### Required Database Indexes
-- [ ] Entity classes have appropriate `@Table(indexes = ...)` annotations
-- [ ] Indexes exist for foreign keys
-- [ ] Indexes exist for columns used in WHERE clauses
-- [ ] Composite indexes for multi-column queries
-- [ ] Unique constraints defined where applicable
-
-**Examples:**
+### Example 2
 ```kotlin
 // ✅ GOOD - Entity with proper indexes
 @Entity
@@ -242,18 +187,8 @@ data class OrderEntity(
 )
 ```
 
----
-
 ## 4. Dependency Injection and Configuration {#dependency-injection}
-
-### Spring Dependency Injection
-- [ ] Use constructor injection (preferred over field injection)
-- [ ] Avoid `@Autowired` on fields (use constructor injection instead)
-- [ ] Use `@Configuration` classes for bean definitions
-- [ ] Avoid circular dependencies
-- [ ] Use `@Qualifier` when multiple beans of same type exist
-
-**Examples:**
+### Example 1
 ```kotlin
 // ❌ BAD - Field injection
 @Service
@@ -306,14 +241,7 @@ class PaymentService(
     // ...
 }
 ```
-
-### Configuration Properties
-- [ ] Use `@ConfigurationProperties` for grouped properties
-- [ ] Validate configuration properties with `@Validated`
-- [ ] Use type-safe configuration classes
-- [ ] Document required configuration in README
-
-**Examples:**
+### Example 2
 ```kotlin
 // ✅ GOOD - Type-safe configuration properties
 @ConfigurationProperties(prefix = "app.payment")
@@ -344,18 +272,8 @@ class PaymentService(
 }
 ```
 
----
-
 ## 5. Logging and Exception Handling {#logging-exception-handling}
-
-### Logging Patterns
-- [ ] Use SLF4J with appropriate log levels
-- [ ] Use structured logging (log context with MDC)
-- [ ] No PII in logs (mask sensitive data)
-- [ ] Log exceptions with full context
-- [ ] Use parameterized logging (not string concatenation)
-
-**Examples:**
+### Example 1
 ```kotlin
 // ❌ BAD - String concatenation in logging
 logger.info("User " + userId + " logged in")
@@ -395,15 +313,7 @@ class UserService(
     }
 }
 ```
-
-### Exception Handling
-- [ ] Use specific exception types (not generic `Exception` or `RuntimeException`)
-- [ ] Create custom exception classes for domain errors
-- [ ] Include meaningful error messages
-- [ ] Use `@ControllerAdvice` for global exception handling in Spring
-- [ ] Don't swallow exceptions (log or rethrow)
-
-**Examples:**
+### Example 2
 ```kotlin
 // ❌ BAD - Generic exception
 throw Exception("Something went wrong")
@@ -478,17 +388,8 @@ fun processOrder(orderId: String): Order {
 }
 ```
 
----
-
 ## 6. Kotlin-Specific Best Practices {#kotlin-best-practices}
-
-### Extension Functions
-- [ ] Use extension functions for utility methods
-- [ ] Don't overuse extensions on platform types
-- [ ] Group related extensions in same file
-- [ ] Document public extension functions
-
-**Examples:**
+### Example 1
 ```kotlin
 // ✅ GOOD - Extension functions for common operations
 fun String.isValidEmail(): Boolean {
@@ -509,14 +410,7 @@ if (email.isValidEmail()) {
     // ...
 }
 ```
-
-### Scope Functions
-- [ ] Use appropriate scope functions (`let`, `run`, `with`, `apply`, `also`)
-- [ ] Don't nest scope functions deeply (max 2 levels)
-- [ ] Use `let` for null-safe operations
-- [ ] Use `apply` for object configuration
-
-**Examples:**
+### Example 2
 ```kotlin
 // ✅ GOOD - Using let for null-safe operations
 user.email?.let { email ->
@@ -536,17 +430,8 @@ val result = calculateResult()
     .also { cacheResult(it) }
 ```
 
----
-
 ## 7. Coroutines and Flow {#coroutines-flow}
-
-### Structured Concurrency
-- [ ] Use scope-provided dispatchers (`viewModelScope`, `lifecycleScope`, `CoroutineScope`) instead of `GlobalScope`
-- [ ] Cancel child coroutines when parent scope is cancelled; leverage `SupervisorJob` when appropriate
-- [ ] Prefer `withContext(Dispatchers.IO)` for blocking I/O and avoid running blocking calls on `Dispatchers.Main`
-- [ ] Handle exceptions with `CoroutineExceptionHandler` or `try/catch` around `await`
-
-**Examples:**
+### Example 1
 ```kotlin
 // ❌ BAD - Using GlobalScope
 GlobalScope.launch {
@@ -564,14 +449,7 @@ class SyncViewModel(
     }
 }
 ```
-
-### Flow Collection
-- [ ] Use cold `Flow` for asynchronous streams, `StateFlow`/`SharedFlow` for state or hot streams
-- [ ] Collect flows with lifecycle awareness (`flowWithLifecycle`, `repeatOnLifecycle`)
-- [ ] Avoid multiple collectors without sharing (`shareIn`, `stateIn`) if upstream work is expensive
-- [ ] Provide default dispatchers for upstream operations (`flowOn(Dispatchers.IO)`)
-
-**Examples:**
+### Example 2
 ```kotlin
 // ✅ GOOD - Collecting with repeatOnLifecycle
 viewLifecycleOwner.lifecycleScope.launch {
@@ -583,22 +461,8 @@ viewLifecycleOwner.lifecycleScope.launch {
 }
 ```
 
-### Testing Coroutines
-- [ ] Use `runTest`/`TestScope` with `StandardTestDispatcher` for coroutine tests
-- [ ] Advance virtual time with `advanceUntilIdle()` instead of `delay`
-- [ ] Inject dispatchers via interfaces (`DispatcherProvider`) to allow swapping in tests
-
----
-
 ## 8. Testing & Serialization {#testing-serialization}
-
-### Testing Practices
-- [ ] Use MockK/Kotest/JUnit5 for Kotlin unit tests; avoid mixing Mockito with coroutines
-- [ ] Provide coroutine test dispatchers using `Dispatchers.setMain`/`resetMain` in `@Before/@After`
-- [ ] Test Android ViewModels by collecting `StateFlow`/`LiveData` with Turbine or `runTest`
-- [ ] Verify serialization/deserialization for DTOs with Kotlinx Serialization or Moshi adapters
-
-**Examples:**
+### Example 1
 ```kotlin
 @OptIn(ExperimentalCoroutinesApi::class)
 class UserRepositoryTest {
@@ -622,33 +486,3 @@ class UserRepositoryTest {
     }
 }
 ```
-
-### Serialization and Data Classes
-- [ ] Use `@Serializable`/Moshi annotations and provide custom adapters for polymorphic hierarchies
-- [ ] Avoid shallow copies of data classes when nested mutable objects exist; create deep copies or use immutable fields
-- [ ] Document JSON defaults and migration steps when adding/removing fields
-
----
-
-## Review Checklist Summary
-
-Quick checklist for Kotlin/Java code reviews:
-
-- [ ] **Null Safety**: Proper use of null-safe types, avoid `!!`, use Optional correctly
-- [ ] **Data/Sealed Classes**: Appropriate use of data classes and sealed classes
-- [ ] **Repository**: Parameterized queries, proper indexes defined
-- [ ] **Dependency Injection**: Constructor injection, proper configuration
-- [ ] **Logging**: SLF4J with structured logging, no PII, parameterized messages
-- [ ] **Exceptions**: Specific exception types, custom exceptions, global handler
-- [ ] **Kotlin Best Practices**: Proper use of extensions and scope functions
-- [ ] **Coroutines**: Structured concurrency, dispatcher usage, Flow collection, lifecycle-aware tests
-- [ ] **Testing/Serialization**: MockK/Kotest usage, coroutine test dispatchers, serialization adapters validated
-
----
-
-## References
-
-- [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
-- [Spring Boot Best Practices](https://docs.spring.io/spring-boot/docs/current/reference/html/)
-- [Effective Kotlin](https://kt.academy/book/effectivekotlin)
-- [JPA Best Practices](https://thoughts-on-java.org/jpa-best-practices/)

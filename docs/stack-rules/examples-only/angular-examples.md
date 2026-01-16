@@ -1,21 +1,7 @@
-# Angular Stack-Specific Rules
-
-This document provides Angular-specific validation rules for code reviews. These rules supplement the general checklists and should be applied when reviewing Angular code.
-
-**Quick resources:** [Cheat Sheet](./concise/angular-concise.md) · [Code Examples](./examples-only/angular-examples.md)
-
----
+# Angular Examples
 
 ## 1. TypeScript Strict Mode Requirements {#typescript-strict}
-
-### Type Safety
-- [ ] Enable `strict` mode in `tsconfig.json`
-- [ ] No usage of `any` type unless absolutely necessary with justification comment
-- [ ] Use proper TypeScript interfaces and types
-- [ ] Define interfaces for component inputs/outputs
-- [ ] Use type guards for type narrowing
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Using any without justification
 processData(data: any) {
@@ -66,18 +52,8 @@ function isUser(value: unknown): value is User {
 }
 ```
 
----
-
 ## 2. Component Architecture {#component-architecture}
-
-### Component Best Practices
-- [ ] Use standalone components (Angular 14+) when appropriate
-- [ ] Keep components focused (single responsibility)
-- [ ] Use OnPush change detection strategy when possible
-- [ ] Implement lifecycle hooks appropriately
-- [ ] Unsubscribe from observables in ngOnDestroy
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Component doing too much
 @Component({
@@ -150,15 +126,7 @@ export class UserCardComponent {
   }
 }
 ```
-
-### Smart vs Presentational Components
-- [ ] Separate smart (container) and presentational (dumb) components
-- [ ] Smart components handle data and state
-- [ ] Presentational components only render UI
-- [ ] Use @Input/@Output for communication
-- [ ] Presentational components should be reusable
-
-**Examples:**
+### Example 2
 ```typescript
 // ✅ GOOD - Smart/Container component
 @Component({
@@ -217,18 +185,8 @@ export class UserListComponent {
 }
 ```
 
----
-
 ## 3. RxJS and Observables {#rxjs-observables}
-
-### Observable Best Practices
-- [ ] Use async pipe in templates (avoid manual subscribe)
-- [ ] Unsubscribe from observables properly
-- [ ] Use operators for transformation (map, filter, switchMap, etc.)
-- [ ] Handle errors with catchError
-- [ ] Use subjects sparingly (prefer observables)
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Manual subscription without cleanup
 export class UserComponent implements OnInit {
@@ -321,18 +279,8 @@ export class DataComponent {
 }
 ```
 
----
-
 ## 4. Dependency Injection {#dependency-injection}
-
-### DI Best Practices
-- [ ] Use constructor injection
-- [ ] Provide services at appropriate level (root, component, module)
-- [ ] Use injection tokens for configuration
-- [ ] Leverage providedIn: 'root' for singleton services
-- [ ] Use factory functions when needed
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Direct instantiation
 export class UserComponent {
@@ -403,18 +351,8 @@ export function createHttpClient(
 export class AppModule {}
 ```
 
----
-
 ## 5. Forms and Validation {#forms-validation}
-
-### Reactive Forms Best Practices
-- [ ] Use Reactive Forms for complex forms
-- [ ] Define form structure with FormBuilder
-- [ ] Implement custom validators when needed
-- [ ] Handle form errors in template
-- [ ] Use typed forms (Angular 14+)
-
-**Examples:**
+### Example 1
 ```typescript
 // ❌ BAD - Template-driven form for complex validation
 // (Template-driven forms are fine for simple forms)
@@ -497,8 +435,7 @@ export class UserFormComponent {
   }
 }
 ```
-
-**Template example:**
+### Example 2
 ```html
 <!-- ✅ GOOD - Error handling in template -->
 <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
@@ -530,18 +467,8 @@ export class UserFormComponent {
 </form>
 ```
 
----
-
 ## 6. State Management {#state-management}
-
-### NgRx Best Practices (if using)
-- [ ] Define actions with proper naming conventions
-- [ ] Keep reducers pure functions
-- [ ] Use selectors for derived state
-- [ ] Handle side effects in effects
-- [ ] Use entity adapters for collections
-
-**Examples:**
+### Example 1
 ```typescript
 // ✅ GOOD - Actions
 export const loadUsers = createAction('[User List] Load Users');
@@ -647,18 +574,8 @@ export const selectAllUsers = selectAll;
 export const selectUserEntities = selectEntities;
 ```
 
----
-
 ## 7. HTTP and API Integration {#http-api}
-
-### HTTP Client Best Practices
-- [ ] Use HttpClient with typed responses
-- [ ] Implement interceptors for common concerns
-- [ ] Handle errors globally with interceptors
-- [ ] Use environment configuration for API URLs
-- [ ] Implement retry logic for failed requests
-
-**Examples:**
+### Example 1
 ```typescript
 // ✅ GOOD - Typed HTTP service
 @Injectable({
@@ -753,18 +670,8 @@ export class ErrorInterceptor implements HttpInterceptor {
 export class AppModule {}
 ```
 
----
-
 ## 8. Performance Optimization {#performance}
-
-### Performance Best Practices
-- [ ] Use OnPush change detection strategy
-- [ ] Implement trackBy for *ngFor
-- [ ] Lazy load modules
-- [ ] Use virtual scrolling for large lists
-- [ ] Optimize bundle size with lazy loading
-
-**Examples:**
+### Example 1
 ```typescript
 // ✅ GOOD - OnPush change detection
 @Component({
@@ -825,18 +732,8 @@ export class LargeListComponent {
 }
 ```
 
----
-
 ## 9. Accessibility & Localization {#accessibility-localization}
-
-### Semantic Templates and ARIA
-- [ ] Use semantic HTML elements instead of generic `div`/`span` for controls
-- [ ] Provide accessible names for custom components via `aria-label`, `aria-labelledby`, or projected text
-- [ ] Avoid duplicate `id` attributes when binding `aria` relationships
-- [ ] Use `aria-live` for async status messages (`cdkTrapFocus` or `cdkFocusInitial` for dialogs)
-- [ ] Keep focus inside overlays/dialogs and return focus to the trigger when closed
-
-**Examples:**
+### Example 1
 ```html
 <!-- ❌ BAD - Clickable div with no semantics -->
 <div (click)="submitForm()">Submit</div>
@@ -859,21 +756,7 @@ export class LargeListComponent {
   <button cdkFocusInitial (click)="onCancel()">Cancel</button>
 </div>
 ```
-
-### Keyboard Navigation and Visual Contrast
-- [ ] Ensure all interactive elements are reachable via keyboard (`tabindex="0"` when needed)
-- [ ] Use `@angular/cdk/a11y` helpers (e.g., `FocusMonitor`) for keyboard focus styling
-- [ ] Provide skip links for large navigation structures
-- [ ] Maintain visible focus indicators with sufficient contrast (3:1 minimum)
-
-### Localization and i18n
-- [ ] Use Angular i18n (`i18n` attribute) or a translation library (Transloco, ngx-translate) for all user-facing text
-- [ ] Externalize pluralization and ICU messages; avoid string concatenation
-- [ ] Format dates/numbers via `DatePipe`, `DecimalPipe`, or `Intl` APIs with locale data loaded
-- [ ] Verify layouts adapt to RTL languages (`dir="rtl"`, `@angular/cdk/bidi`)
-- [ ] Document extracted translation IDs and keep `messages.xlf` in sync
-
-**Examples:**
+### Example 2
 ```html
 <!-- ✅ GOOD - ICU message -->
 <p i18n="@@itemCount">
@@ -881,16 +764,8 @@ export class LargeListComponent {
 </p>
 ```
 
----
-
 ## 10. Testing Strategy {#testing}
-
-### TestBed and Angular Testing Library
-- [ ] Use Angular Testing Library or `TestBed` to render components in a realistic DOM
-- [ ] Prefer `screen.getByRole`/`getByText` queries over CSS selectors
-- [ ] Clean up fixtures between tests (`afterEach(cleanup)` or `TestBed.resetTestingModule()`)
-
-**Examples:**
+### Example 1
 ```typescript
 // ✅ GOOD - Angular Testing Library usage
 import { render, screen } from '@testing-library/angular';
@@ -907,27 +782,8 @@ it('emits submit event', async () => {
 });
 ```
 
-### Async Utilities
-- [ ] Use `waitForAsync` for async setup and `fakeAsync`/`tick` only when deterministically flushing timers
-- [ ] When using `fakeAsync`, call `flush()`/`tick()` for pending microtasks and avoid mixing with `async/await`
-- [ ] Test observable streams by mocking services and emitting values through `Subject`/`BehaviorSubject`
-
-### Integration and Storybook Coverage
-- [ ] Create Storybook stories (or integration harnesses) for complex components/states
-- [ ] Verify change detection strategies and OnPush components in tests (`fixture.detectChanges()`)
-- [ ] Cover HTTP interceptors/services with Jasmine spies or HttpTestingController
-
----
-
 ## 11. Template Security & Sanitization {#template-security}
-
-### `innerHTML` and DomSanitizer
-- [ ] Avoid `[innerHTML]` unless the HTML is sanitized or authored by the team
-- [ ] Use `DomSanitizer.sanitize`/`bypassSecurityTrust...` only when absolutely necessary and document the data source
-- [ ] Never pass user-provided values into `bypassSecurityTrust...` APIs
-- [ ] Validate markdown/rendered content with an allowlist-based sanitizer (DOMPurify)
-
-**Examples:**
+### Example 1
 ```typescript
 // ✅ GOOD - Sanitizing HTML before binding
 export class ArticleComponent {
@@ -942,40 +798,13 @@ export class ArticleComponent {
   }
 }
 ```
-
+### Example 2
 ```html
 <div [innerHTML]="safeHtml"></div>
 ```
 
-### Preventing Client-Side Injection
-- [ ] Do not interpolate untrusted data into event handlers or `[style]` bindings without validation
-- [ ] Leverage Angular’s built-in escaping for property and attribute bindings instead of concatenated strings
-- [ ] Enforce CSP headers (nonce/hash) and avoid inline scripts/styles in templates
-- [ ] Avoid dynamically constructing template strings or `Function` constructors inside components
-
----
-
-## Review Checklist Summary
-
-Quick checklist for Angular code reviews:
-
-- [ ] **TypeScript**: Strict mode enabled, proper types, no `any` without justification
-- [ ] **Components**: Single responsibility, OnPush strategy, proper lifecycle hooks
-- [ ] **RxJS**: Async pipe usage, proper unsubscribe, error handling
-- [ ] **DI**: Constructor injection, appropriate service scope
-- [ ] **Forms**: Reactive forms for complex validation, custom validators
-- [ ] **State**: Proper state management (NgRx if used), immutable updates
-- [ ] **HTTP**: Typed responses, interceptors for common concerns
-- [ ] **Performance**: TrackBy, lazy loading, virtual scrolling when needed
-- [ ] **Accessibility/i18n**: Semantic templates, keyboard/focus coverage, Angular i18n usage
-- [ ] **Testing**: Behavior-focused TestBed/ATL coverage with async utilities handled correctly
-- [ ] **Security**: Safe `[innerHTML]`, DomSanitizer usage, no client-side injection risks
-
----
-
 ## Tools for Code Quality
-
-**Linters and Formatters:**
+### Example 1
 ```bash
 # ESLint with Angular rules
 ng lint
@@ -986,8 +815,7 @@ npx prettier --write "src/**/*.{ts,html,scss}"
 # Build optimization
 ng build --configuration production --optimization
 ```
-
-**Angular CLI Commands:**
+### Example 2
 ```bash
 # Generate component with OnPush
 ng generate component user-list --change-detection OnPush
@@ -1002,13 +830,3 @@ ng generate module users --routing
 ng build --stats-json
 npx webpack-bundle-analyzer dist/stats.json
 ```
-
----
-
-## References
-
-- [Angular Official Documentation](https://angular.io/docs)
-- [Angular Style Guide](https://angular.io/guide/styleguide)
-- [RxJS Documentation](https://rxjs.dev/)
-- [NgRx Documentation](https://ngrx.io/)
-- [Angular Material](https://material.angular.io/)

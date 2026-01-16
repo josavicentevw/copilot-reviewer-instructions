@@ -14,10 +14,13 @@ This directory contains technology stack-specific validation rules that suppleme
 
 ### Frontend Frameworks
 
-- **[React/TypeScript Rules](./react-typescript-rules.md)**: TypeScript strict mode, React hooks, component patterns, state management, HTTP client requirements, and performance optimization for React/TypeScript projects.
-- **[Angular Rules](./angular-rules.md)**: TypeScript strict mode, component architecture, RxJS observables, dependency injection, forms and validation, state management with NgRx, and performance optimization for Angular projects.
+- **[React/TypeScript Rules](./react-typescript-rules.md)**: TypeScript strict mode, React hooks, component patterns, state management, HTTP client requirements, and performance optimization for React/TypeScript projects. ([Cheat Sheet](./concise/react-typescript-concise.md) · [Examples](./examples-only/react-typescript-examples.md))
+- **[Angular Rules](./angular-rules.md)**: TypeScript strict mode, component architecture, RxJS observables, dependency injection, forms and validation, state management with NgRx, and performance optimization for Angular projects. ([Cheat Sheet](./concise/angular-concise.md) · [Examples](./examples-only/angular-examples.md))
 
----
+### Quick Reference & Examples
+
+- **Backend Cheat Sheets**: [Go](./concise/go-concise.md), [Java](./concise/java-concise.md), [Kotlin/Java](./concise/java-kotlin-concise.md), [Python](./concise/python-concise.md), [Scala](./concise/scala-concise.md)
+- **Backend Examples**: [Go](./examples-only/go-examples.md), [Java](./examples-only/java-examples.md), [Kotlin/Java](./examples-only/java-kotlin-examples.md), [Python](./examples-only/python-examples.md), [Scala](./examples-only/scala-examples.md)
 
 ## How to Use Stack-Specific Rules
 
@@ -54,6 +57,8 @@ Examples:
 - `swift-ios-rules.md`
 - `go-rules.md`
 - `csharp-dotnet-rules.md`
+- **Concise references** (summaries): `concise/react-typescript-concise.md`, etc.
+- **Example-only guides**: `examples-only/react-typescript-examples.md`, etc.
 
 ### 2. Follow the Standard Structure
 

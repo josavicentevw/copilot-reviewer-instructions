@@ -1,21 +1,7 @@
-# Python Stack-Specific Rules
-
-This document provides Python-specific validation rules for code reviews. These rules supplement the general checklists and should be applied when reviewing Python code.
-
-**Quick resources:** [Cheat Sheet](./concise/python-concise.md) · [Code Examples](./examples-only/python-examples.md)
-
----
+# Python Examples
 
 ## 1. Type Hints and Type Safety {#type-hints}
-
-### Type Annotations
-- [ ] Use type hints for function signatures (parameters and return types)
-- [ ] Use type hints for class attributes
-- [ ] Avoid using `Any` unless absolutely necessary with justification comment
-- [ ] Use `Optional[T]` for values that can be None
-- [ ] Enable type checking with mypy or pyright in CI/CD
-
-**Examples:**
+### Example 1
 ```python
 # ❌ BAD - No type hints
 def process_data(data):
@@ -58,15 +44,7 @@ class LegacyApiClient:
         """
         return self._client.post(endpoint, json=data)
 ```
-
-### Dataclasses and Pydantic Models
-- [ ] Use `@dataclass` for simple data holders
-- [ ] Use Pydantic models for data validation and API schemas
-- [ ] Define fields with appropriate types
-- [ ] Use `frozen=True` for immutable dataclasses
-- [ ] Leverage Pydantic validators for complex validation
-
-**Examples:**
+### Example 2
 ```python
 # ✅ GOOD - Dataclass for simple data
 from dataclasses import dataclass
@@ -116,18 +94,8 @@ class UserResponse(BaseModel):
         orm_mode = True  # Allows creation from ORM models
 ```
 
----
-
 ## 2. Error Handling and Exceptions {#error-handling}
-
-### Exception Handling
-- [ ] Use specific exception types (not bare `except:`)
-- [ ] Create custom exception classes for domain errors
-- [ ] Include meaningful error messages
-- [ ] Use context managers for resource management
-- [ ] Log exceptions with full context
-
-**Examples:**
+### Example 1
 ```python
 # ❌ BAD - Bare except
 try:
@@ -216,18 +184,8 @@ with database_transaction(session) as db:
     db.add(user)
 ```
 
----
-
 ## 3. Database and ORM Patterns {#database-orm}
-
-### SQLAlchemy Best Practices
-- [ ] Use parameterized queries (never string concatenation)
-- [ ] Define proper indexes on models
-- [ ] Use relationships and lazy loading appropriately
-- [ ] Implement proper session management
-- [ ] Use connection pooling
-
-**Examples:**
+### Example 1
 ```python
 # ❌ BAD - SQL injection vulnerability
 def find_user_by_email(email: str) -> Optional[User]:
@@ -317,18 +275,8 @@ with get_db_session() as session:
     user = find_user_by_email(session, "user@example.com")
 ```
 
----
-
 ## 4. Async/Await Patterns {#async-await}
-
-### Asynchronous Programming
-- [ ] Use `async`/`await` for I/O-bound operations
-- [ ] Use `asyncio.gather()` for parallel async operations
-- [ ] Implement proper timeout handling
-- [ ] Use async context managers for resource management
-- [ ] Handle cancellation properly
-
-**Examples:**
+### Example 1
 ```python
 # ❌ BAD - Sequential async calls
 async def get_user_data(user_ids: List[str]) -> List[User]:
@@ -394,18 +342,8 @@ async def process_orders(order_ids: List[str]) -> List[Order]:
     return [r for r in results if r is not None]
 ```
 
----
-
 ## 5. Dependency Injection and Configuration {#dependency-injection}
-
-### Dependency Injection
-- [ ] Use dependency injection for testability
-- [ ] Avoid global state and singletons
-- [ ] Use protocols/abstract base classes for interfaces
-- [ ] Constructor injection preferred
-- [ ] Use dependency injection frameworks (e.g., FastAPI's Depends)
-
-**Examples:**
+### Example 1
 ```python
 # ❌ BAD - Hardcoded dependencies
 class UserService:
@@ -474,15 +412,7 @@ async def create_user(
     user = service.create_user(user_data.dict())
     return UserResponse.from_orm(user)
 ```
-
-### Configuration Management
-- [ ] Use environment variables for configuration
-- [ ] Use Pydantic Settings for type-safe configuration
-- [ ] Validate configuration on startup
-- [ ] Don't hardcode secrets or credentials
-- [ ] Document required configuration
-
-**Examples:**
+### Example 2
 ```python
 # ✅ GOOD - Pydantic Settings for configuration
 from pydantic import BaseSettings, Field, validator
@@ -527,18 +457,8 @@ engine = create_engine(
 )
 ```
 
----
-
 ## 6. Testing Best Practices {#testing}
-
-### Pytest Conventions
-- [ ] Use pytest for testing
-- [ ] Use fixtures for test setup
-- [ ] Use parametrize for testing multiple cases
-- [ ] Mock external dependencies
-- [ ] Test coverage for critical paths
-
-**Examples:**
+### Example 1
 ```python
 # ✅ GOOD - Using fixtures
 import pytest
@@ -600,18 +520,8 @@ async def test_fetch_user_data_async():
         assert data["id"] == "1"
 ```
 
----
-
 ## 7. Code Style and Formatting {#code-style}
-
-### PEP 8 and Code Formatting
-- [ ] Follow PEP 8 style guide
-- [ ] Use Black for code formatting
-- [ ] Use isort for import sorting
-- [ ] Maximum line length: 88 characters (Black default) or 100
-- [ ] Use pylint/flake8 for linting
-
-**Examples:**
+### Example 1
 ```python
 # ✅ GOOD - Import ordering (isort)
 # Standard library imports
@@ -660,17 +570,8 @@ DEFAULT_TIMEOUT = 30.0
 API_BASE_URL = "https://api.example.com"
 ```
 
----
-
 ## 8. Accessibility & Localization {#accessibility}
-
-### Web Framework Templates
-- [ ] Use semantic HTML tags and ARIA attributes in Django/Jinja templates; avoid hard-coded `div` buttons
-- [ ] Ensure user-facing strings are wrapped in translation helpers (`gettext`, `ugettext_lazy`, `gettext_lazy`) and extracted into `.po` files
-- [ ] Support RTL layouts and pluralization via Django’s or Babel’s ICU message support
-- [ ] Validate color contrast and keyboard navigation when rendering CLI/terminal UIs (e.g., Typer/Rich)
-
-**Examples:**
+### Example 1
 ```python
 {% load i18n %}
 <button type="submit" aria-label="{% trans 'Save changes' %}">
@@ -678,25 +579,8 @@ API_BASE_URL = "https://api.example.com"
 </button>
 ```
 
-### API Responses
-- [ ] Provide localized error messages where appropriate, or include locale codes in responses
-- [ ] Avoid embedding unescaped HTML snippets in API responses; return structured data instead
-
----
-
 ## 9. Testing & Tooling Enhancements {#testing-tooling}
-
-### Async and Property-Based Testing
-- [ ] Use `pytest.mark.asyncio` or `pytest-asyncio` fixtures for async functions; avoid event loop nesting
-- [ ] Use Hypothesis for property-based tests on parsing/validation code
-- [ ] Use pytest plugins (freezegun, respx) to control time and HTTP interactions
-
-### Coverage and Linters
-- [ ] Enforce coverage thresholds (`pytest --cov=... --cov-fail-under=90`)
-- [ ] Run `bandit`, `ruff`, `mypy`, and `black`/`isort` in CI
-- [ ] Use `pre-commit` hooks to keep formatting and linting consistent
-
-**Examples:**
+### Example 1
 ```python
 @pytest.mark.asyncio
 async def test_fetch_user(async_client):
@@ -710,25 +594,8 @@ def test_slugify_has_no_spaces(value: str):
     assert " " not in slugify(value)
 ```
 
----
-
 ## 10. Security & Configuration {#security}
-
-### Secrets and Environment Management
-- [ ] Load configuration via environment variables or `pydantic.BaseSettings`; never hard-code secrets
-- [ ] Use secret managers (AWS Secrets Manager, Vault) or encrypted files for production credentials
-- [ ] Mask secrets in logs and tracebacks
-
-### Input Validation and Serialization
-- [ ] Validate and sanitize user input (e.g., `pydantic` models, Marshmallow schemas)
-- [ ] Use parameterized queries for raw SQL and `sqlalchemy.text()` with bind parameters
-- [ ] Escape HTML output (`django.utils.html.escape`, `markupsafe.escape`) when rendering user content
-
-### Dependency and Package Security
-- [ ] Keep dependencies updated (`pip-tools`, `poetry update`) and scan with `pip-audit` or `safety`
-- [ ] Pin dependencies with hashes where possible
-
-**Examples:**
+### Example 1
 ```python
 class Settings(BaseSettings):
     database_url: AnyUrl
@@ -739,30 +606,8 @@ class Settings(BaseSettings):
         env_file = ".env"
 ```
 
----
-
-## Review Checklist Summary
-
-Quick checklist for Python code reviews:
-
-- [ ] **Type Hints**: Proper type annotations, avoid `Any`, use Optional correctly
-- [ ] **Dataclasses**: Use dataclasses or Pydantic models appropriately
-- [ ] **Exceptions**: Specific exception types, custom exceptions for domain errors
-- [ ] **Database**: Parameterized queries, proper indexes, session management
-- [ ] **Async**: Proper use of async/await, parallel execution, timeout handling
-- [ ] **DI**: Constructor injection, protocols for interfaces
-- [ ] **Configuration**: Environment variables, Pydantic Settings, validation
-- [ ] **Testing**: Pytest with fixtures, parametrize, proper mocking
-- [ ] **Style**: PEP 8 compliance, Black formatting, proper imports
-- [ ] **Accessibility/i18n**: Templates use semantic HTML, ARIA, and translation helpers
-- [ ] **Security**: Secrets managed via env/settings, SQL queries parameterized, inputs validated
-- [ ] **Tooling**: Async/property tests, coverage thresholds, bandit/ruff/mypy enforce policies
-
----
-
 ## Tools for Code Quality
-
-**Linters and Formatters:**
+### Example 1
 ```bash
 # Format code
 black src/
@@ -779,8 +624,7 @@ bandit -r src/
 # Testing
 pytest tests/ --cov=src --cov-report=html
 ```
-
-**Configuration Example (pyproject.toml):**
+### Example 2
 ```toml
 [tool.black]
 line-length = 88
@@ -802,14 +646,3 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 ```
-
----
-
-## References
-
-- [PEP 8 - Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/)
-- [Python Type Hints Documentation](https://docs.python.org/3/library/typing.html)
-- [Pydantic Documentation](https://pydantic-docs.helpmanual.io/)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Pytest Documentation](https://docs.pytest.org/)
-- [SQLAlchemy Best Practices](https://docs.sqlalchemy.org/en/14/orm/tutorial.html)
