@@ -74,7 +74,7 @@ Your ideas for fixing/improving
 ### 2. Suggesting Enhancements
 
 We welcome suggestions for:
-- New technology stack support (Python, Go, Swift, etc.)
+- New technology stack support (Swift, Ruby, Rust, C#/.NET, PHP, mobile frameworks).
 - Additional checklists or rules
 - Improved metrics and tracking
 - Better customization options
