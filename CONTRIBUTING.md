@@ -76,7 +76,6 @@ Your ideas for fixing/improving
 We welcome suggestions for:
 - New technology stack support (Swift, Ruby, Rust, C#/.NET, PHP, mobile frameworks).
 - Additional checklists or rules
-- Improved metrics and tracking
 - Better customization options
 - Documentation improvements
 
@@ -111,8 +110,6 @@ Want to add support for a new programming language or framework?
 7. Submit a pull request
 
 **Example stacks we'd love to see:**
-- Python (Django, FastAPI, pandas)
-- Go (concurrency, error handling, interfaces)
 - Swift/SwiftUI (optionals, protocols, memory management)
 - Ruby (Rails conventions, metaprogramming)
 - Rust (ownership, lifetimes, error handling)
@@ -160,7 +157,7 @@ Even if you don't submit code, sharing your experience helps!
 ### Prerequisites
 
 - Git installed locally
-- Markdown editor (VS Code, Typora, etc.)
+- Markdown editor (VS Code, etc.)
 - Basic understanding of Git workflow
 - Familiarity with code review concepts
 
