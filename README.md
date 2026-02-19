@@ -95,6 +95,33 @@ For teams that want to use the system with minimal customization.
 
 For teams that want to customize the system for their specific needs. See the [Team Customization Guide](templates/team-customization-guide.md) for detailed instructions.
 
+### Bring the Required Files into Your Repository
+
+Copy the base assets so Copilot has everything it needs to reference:
+
+- `docs/` directory (all checklists, stack rules, and examples)
+- `templates/` directory (instruction templates and customization guide)
+- Any stack-specific rule files you plan to enforce (e.g., `docs/stack-rules/react-typescript-rules.md`, `docs/stack-rules/go-rules.md`)
+
+Commit these to your repo so the linked documentation stays accessible from the instructions you paste into GitHub settings.
+
+### Configure Your GitHub Repository for Custom Instructions
+
+1. In your repository, go to `Settings → Copilot → Pull request reviews`.
+2. Turn on Copilot pull request reviews for the repository (or inherit the org policy if already enabled).
+3. Choose **Custom instructions**, then paste the instructions you want to use (start from `templates/copilot-instructions-template.md` or your team-specific version).
+4. Save the configuration so new reviews use these instructions by default.
+
+### Merge Existing Instructions with This Framework
+
+If you already have review guidance (org-level Copilot instructions, team playbooks, or checklists), fold them into this system instead of replacing them:
+
+- Inventory what already exists (org-level Copilot instructions, repo-level rules, team checklists).
+- Start from `templates/copilot-instructions-template.md` and slot your existing rules into the matching sections (e.g., security, testing, performance, stack-specific notes).
+- Resolve conflicts by keeping the stricter or more specific rule, and drop duplicates to avoid noise.
+- Keep a single source of truth: publish the merged instructions in the repository settings (Custom instructions) and in your repo docs if you want collaborators to view them in Git history.
+- Revisit after a few PRs to tune severity levels and add any recurring findings you want automated.
+
 ---
 
 ## 👥 For Teams
