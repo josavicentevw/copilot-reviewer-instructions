@@ -100,7 +100,6 @@ For teams that want to customize the system for their specific needs. See the [T
 Copy the base assets so Copilot has everything it needs to reference:
 
 - `docs/` directory (all checklists, stack rules, and examples)
-- `templates/` directory (instruction templates and customization guide)
 - Any stack-specific rule files you plan to enforce (e.g., `docs/stack-rules/react-typescript-rules.md`, `docs/stack-rules/go-rules.md`)
 
 Commit these to your repo so the linked documentation stays accessible from the instructions you paste into GitHub settings.
